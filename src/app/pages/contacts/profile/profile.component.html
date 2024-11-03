@@ -1,0 +1,252 @@
+<div class="container-fluid">
+
+  <app-page-title title="Profile" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+  <div class="row">
+    <div class="col-xl-4">
+      <div class="card overflow-hidden">
+        <div class="bg-primary-subtle">
+          <div class="row">
+            <div class="col-7">
+              <div class="text-primary p-3">
+                <h5 class="text-primary">Bon retour !</h5>
+                <p>Mettre à jour votre profil</p>
+              </div>
+            </div>
+            <div class="col-5 align-self-end">
+              <img src="assets/images/profile-img.png" alt="" class="img-fluid">
+            </div>
+          </div>
+        </div>
+        <div class="card-body pt-0">
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="avatar-md profile-user-wid mb-4">
+                <ng-container *ngIf="currentUser.profile_picture != null ;else profilIsAvailable">
+                  <img [src]="environment.api_url+'media/'+currentUser.profile_picture" alt="" class="img-thumbnail  rounded-circle">
+
+                </ng-container>
+
+                <ng-template #profilIsAvailable>
+                  <img src="assets/images/users/avatar-1.jpg" alt="" class="img-thumbnail rounded-circle">
+                </ng-template>
+
+              </div>
+              <h5 class="font-size-15 text-truncate">{{currentUser.username}}</h5>
+              <p class="text-muted mb-0 text-uppercase">{{currentUser.role}}</p>
+            </div>
+
+            <div class="col-sm-8">
+              <div class="pt-4">
+
+                <div class="row">
+                  <div class="col-12">
+                    <h5 class="font-size-15">Date inscription </h5>
+                    <p class="text-muted mb-0">{{currentUser.created_at | date}}</p>
+                  </div>
+
+                </div>
+
+                <div class="mt-4">
+                  <a href="javascript: void(0);" class="btn btn-primary btn-sm">Télécharger vos données <i class="mdi mdi-arrow-right ms-1"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- end card -->
+
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Personal Information</h4>
+
+          <p class="text-muted mb-4 " style="text-align: justify">
+            {{currentUser.about_us}}
+          </p>
+          <div class="table-responsive">
+            <table class="table table-nowrap mb-0">
+              <tbody>
+                <tr>
+                  <th scope="row">Nom Complet :</th>
+                  <td>{{currentUser.first_name + ' ' + currentUser.last_name}}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Téléphone :</th>
+                  <td>(123) 123 1234</td>
+                </tr>
+                <tr>
+                  <th scope="row">E-mail :</th>
+                  <td>{{currentUser.email}}</td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- end card -->
+
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-5">Activité de connexion</h4>
+          <div class="">
+            <ul class="verti-timeline list-unstyled">
+              <li class="event-list active">
+                <div class="event-timeline-dot">
+                  <i class="bx bx-right-arrow-circle bx-fade-right"></i>
+                </div>
+                <div class="d-flex">
+                  <div class="flex-shrink-0 me-3">
+                    <i class="bx bx-server h4 text-primary"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div>
+                      <h5 class="font-size-15"><a href="javascript: void(0);" class="text-dark">Ajourdh'ui</a></h5>
+                      <span class="text-primary">30 - 2024</span>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="event-list active">
+                <div class="event-timeline-dot">
+                  <i class="bx bx-right-arrow-circle bx-fade-right"></i>
+                </div>
+                <div class="d-flex">
+                  <div class="flex-shrink-0 me-3">
+                    <i class="bx bx-server h4 text-primary"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div>
+                      <h5 class="font-size-15"><a href="javascript: void(0);" class="text-dark">Dernière connexion</a></h5>
+                      <span class="text-primary">28 - 2024</span>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+      <!-- end card -->
+    </div>
+
+    <div class="col-xl-8">
+
+      <div class="row">
+        <div class="col-md-6">
+          <app-stat [title]="'Heure connecter'" [value]="connectionTime" [icon]="'bx bx-check-circle'"></app-stat>
+        </div>
+
+        <div class="col-md-6">
+          <app-stat [title]="'Temps de connexion'" [value]="connectionDuration" [icon]="'bx bx-hourglass'"></app-stat>
+        </div>
+      </div>
+
+
+      <div>
+        <form class="needs-validation" name="signupForm"
+              [formGroup]="signupForm" (ngSubmit)="onSubmit()"
+              novalidate>
+          <div class="mb-3">
+            <label for="username" class="form-label">Nom d'utilisateur</label>
+            <input
+                    [value]="currentUser.username"
+                    disabled="disabled"
+                    formControlName="username"
+                    readonly
+                    type="text"
+                    class="form-control text-capitalize"
+                    id="username" placeholder="Enter username" />
+          </div>
+
+          <div class="mb-3">
+            <label class="control-label">Nom</label>
+            <input
+                    [value]="currentUser.first_name"
+
+                    class="form-control text-capitalize" placeholder="Saisissez le Nom du livreur." type="text" name="title"
+                   autocomplete="off"
+                   formControlName="first_name"
+                   />
+          </div>
+
+          <div class="mb-3">
+            <label class="control-label">Prenom</label>
+            <input
+                    [value]="currentUser.last_name"
+                    class="form-control text-capitalize" placeholder="Saisissez le Prenom du livreur." type="text" name="title"
+                   autocomplete="off" formControlName="last_name" />
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" formControlName="email"
+                   (keyup)="verifyIfUserInfoExit($event,'email')"
+
+                   class="form-control"
+                   id="email" placeholder="Email" />
+          </div>
+
+          <div class="mb-3">
+            <label class="control-label">Adresse</label>
+            <input
+                    [value]="currentUser.adresse"
+                    class="form-control text-capitalize" placeholder="Saisissez votre adresse."
+                    type="text" name="adresse"
+                    autocomplete="off"
+                    formControlName="adresse" />
+          </div>
+
+
+          <div class="mb-3">
+            <label class="control-label">Photo de profile</label>
+            <div class="input-group">
+              <input type="file"
+                     class="form-control" id="inputGroupFile04"
+                     accept="image/png, image/gif, image/jpeg"
+                     (change)="fileChange($event)"
+                     aria-describedby="inputGroupFileAddon04"
+                     aria-label="Upload">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="control-label">A Propos de vous</label>
+            <textarea
+                    id="formmessage"
+                    class="form-control" placeholder="Saisissez l'addresse du livreur."  autocomplete="off"
+                    name="address" formControlName="about_us"
+                    [value]="currentUser.about_us"
+                    rows="3">
+
+              </textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Ancien Mot de passe</label>
+            <input type="password" formControlName="password" class="form-control"
+                   [ngClass]="{ 'is-invalid': submitted && f.password.errors }" id="password"
+                   placeholder="Password" />
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Mot de passe</label>
+            <input type="password" formControlName="password" class="form-control"
+                   [ngClass]="{ 'is-invalid': submitted && f.password.errors }" id="password"
+                   placeholder="Password" />
+          </div>
+
+          <div class="mt-3 d-grid">
+            <button class="btn btn-primary" type="submit">Mettre a jour</button>
+          </div>
+
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+  <!-- end row -->
+</div>

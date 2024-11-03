@@ -1,0 +1,10 @@
+::ng-deep .modal-dialog{
+  max-width: 900px !important;
+  width: 900px !important;
+}
+
+::ng-deep .ng2-tag-input--focused, ::ng-deep .ng2-tag-input{
+  border: 1px solid #ced4da !important;
+  border-radius: 0.25rem  !important;
+  padding: 0px 05px !important;
+}

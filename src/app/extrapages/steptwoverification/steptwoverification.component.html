@@ -1,0 +1,79 @@
+<div class="account-pages my-4 pt-sm-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center mb-5 text-muted">
+                    <a routerLink="/" class="d-block auth-logo">
+                        <img src="assets/images/logo-dark.png" alt="" height="20" class="auth-logo-dark mx-auto">
+                        <img src="assets/images/logo-light.png" alt="" height="20" class="auth-logo-light mx-auto">
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- end row -->
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6 col-xl-6">
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <div class="p-2">
+                            <div class="text-center">
+
+                                <div class="avatar-md mx-auto">
+                                    <div class="avatar-title rounded-circle bg-light">
+                                        <i class="bx bxs-envelope h1 mb-0 text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="p-2 mt-4">
+
+                                    <h4>Vérifiez votre adresse e-mail</h4>
+                                    <p class="mb-5">Veuillez saisir le code à 4 chiffres envoyé à <span class="fw-semibold">...&#64;...com</span></p>
+
+                                    <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+                                        <div class="mb-3 d-flex flex-column align-items-center">
+                                            <label class="control-label">Saisissez votre l'addresse email</label>
+                                            <input
+                                                    class="form-control w-75"
+                                                    placeholder="Addresse email."
+                                                    type="email"
+                                                    name="last_name"
+                                                    autocomplete="off"
+                                                    formControlName="last_name"
+                                                    required
+                                                    [ngClass]="{'is-invalid': isSubmitted && formControls.last_name.invalid}"
+                                            />
+                                            <div *ngIf="isSubmitted && formControls.last_name.invalid" class="invalid-feedback">
+                                                <span>Le Email du user est obligatoire.</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-4">
+                                            <label class="control-label">Code OPT</label>
+                                            <ng-otp-input [config]="config" (onInputChange)="optHandler($event)" formControlName="otp"></ng-otp-input>
+
+                                        </div>
+
+                                        <div class="mt-4">
+                                            <button type="submit" class="btn btn-success w-md ">Soumettre</button>
+                                        </div>
+                                    </form>
+
+
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="mt-5 text-center">
+                    <p>Vous n'avez pas reçu de code ? <a href="/auth/reset-password" class="fw-medium text-primary"> Ressayer </a> </p>
+                    <p>© {{year}} Eylos. Crafted with <i class="mdi mdi-heart text-danger"></i> by Wisourcing</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

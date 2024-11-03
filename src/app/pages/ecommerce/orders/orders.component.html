@@ -1,0 +1,463 @@
+<div class="container-fluid">
+    <app-page-title title="Commandes en cours" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <div class="search-box me-2 mb-2 d-inline-block">
+                                <div class="position-relative">
+                                    <input type="text" class="form-control" autocomplete="off" id="searchTableList"
+                                           placeholder="Rechercher..." [(ngModel)]="term"
+                                           (ngModelChange)="searchOrder()">
+                                    <i class="bx bx-search-alt search-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-8 d-flex align-items-center justify-content-end gap-3">
+
+                            <div class="col-sm-4">
+                                <select class="form-select">
+                                    <option>Filtrer par..</option>
+                                    <option>Large select</option>
+                                    <option>Small select</option>
+                                </select>
+                            </div>
+
+                            <div class="text-sm-end refresh-btn">
+
+                                <button type="button"
+                                        class="btn  btn-rounded mb-2 me-2"
+                                        [ngClass]="{'btn-success': isSuccess, 'btn-dark': !isSuccess}"
+                                        (click)="onButtonClick();refreshOderData()">
+                                    <ng-container *ngIf="isSuccess">
+                                        <i class="bx bx-loader bx-spin font-size-16 align-middle me-2"></i>
+                                    </ng-container>
+                                    <ng-container *ngIf="!isSuccess">
+                                        <i class="bx bx-check-double font-size-16 align-middle me-2"></i>
+                                    </ng-container>
+                                    Rafraichir
+                                </button>
+
+                            </div>
+
+                            <div class="text-sm-end">
+                                <button type="button" class="btn btn-success btn-rounded mb-2 me-2"
+                                        (click)="showModal.show()"><i class="mdi mdi-plus mr-1"></i>
+                                    Add New Order
+                                </button>
+                            </div>
+                        </div><!-- end col-->
+                    </div>
+                    <!-- Table data -->
+                    <div class="table-responsive mb-0">
+                        <table class="table align-middle table-nowrap dt-responsive nowrap w-100 table-check"
+                               id="order-list">
+                            <thead class="table-light">
+                            <tr>
+                                <th style="width: 20px;">
+                                    <div class="form-check font-size-16 align-middle">
+                                        <input class="form-check-input" type="checkbox" id="transactionCheck01"
+                                               [(ngModel)]="masterSelected" (change)="checkUncheckAll($event)">
+                                        <label class="form-check-label" for="transactionCheck01"></label>
+                                    </div>
+                                </th>
+                                <th class="align-middle">ID Commande</th>
+                                <th class="align-middle">Nom de la boutique</th>
+                                <th class="align-middle">Date de la commande</th>
+                                <th class="align-middle">Processus de commande</th>
+                                <th class="align-middle">Total de la commande</th>
+                                <th class="align-middle">Livreurs</th>
+                                <th class="align-middle">Statut de paiement</th>
+                                <th class="align-middle">Statut de livraison</th>
+                                <th class="align-middle">Détails de la commande</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            @for (data of orderlist;track $index) {
+                            <tr id="o_{{data.id}}">
+                                        <td>
+                                            <div class="form-check font-size-16">
+                                                <input class="form-check-input" type="checkbox"
+                                                       id="transactionCheck{{data.index}}"
+                                                       value="{{data.id}}" [(ngModel)]="data.state">
+                                                <label class="form-check-label"
+                                                       for="transactionCheck{{data.index}}"></label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <a href="javascript: void(0);"
+                                               class="text-body fw-bold">{{ data.order_id }}</a>
+                                        </td>
+                                        <td><a [href]="data.store_url" target="_blank">{{ data.store_name }}</a></td>
+                                        <!--                  <td>{{data.name }}</td>-->
+                                        <td>
+                            {{
+                            beginDate(data.created_at).day + '-' +
+                            beginDate(data.created_at).monthNumber + '-' +
+                            beginDate(data.created_at).year + ' à ' +
+                            beginDate(data.created_at).time
+
+                            }}
+
+
+                            </td>
+                            <td>
+       <span class="badge badge-pill badge-soft-success font-size-11"
+             [ngClass]="{
+                            'badge-soft-danger': data.order_status === 'failed' || data.order_status === 'canceled',
+                            'badge-soft-warning': data.order_status === 'pending-payment' || data.order_status ===
+                            'on-hold' || data.order_status === 'refunded' || data.order_status === 'draft',
+                            'badge-soft-success': data.order_status === 'processing' || data.order_status ===
+                            'completed'
+                            }">
+                            {{ data.order_status }}
+                            </span>
+
+
+                                                </td>
+                                                <td>{{ data.total }} {{ data.currency }}</td>
+                                        <td>
+                                            @if (data.livreur.length>0){
+                            @for (deliveryOrder of data.livreur;track $index ){
+                            <span class="badge badge-pill badge-soft-success font-size-11 badge-soft-success text-capitalize">
+                            {{deliveryOrder.surname}}</span> <br>
+                            }
+                            }@else{
+                            <span class="badge badge-pill badge-soft-success font-size-11 badge-soft-warning text-capitalize">Pas livreur</span>
+                            }
+
+                            </td>
+
+                            <td>
+        <span class="badge badge-pill badge-soft-success font-size-11"
+              [ngClass]=" {
+                            'badge-soft-danger': data.payment_status === 'Chargeback',
+                            'badge-soft-warning': data.payment_status === 'Refund',
+                            'badge-soft-success': data.payment_status === 'Paid'
+
+                            }">
+                            {{ data.payment_status }}
+                            </span>
+                                                </td>
+
+                                                <td>
+                            <span class="badge badge-pill badge-soft-success font-size-11"
+                                  [ngClass]=" {
+                            'badge-soft-warning': data.is_locked === false,
+                            'badge-soft-success': data.is_locked === true
+
+                            }">
+                            <ng-container *ngIf="data.is_locked ">
+                            En cour de livraison
+                            </ng-container>
+
+                             <ng-container *ngIf="!data.is_locked ">
+                            Livraison non effectuée
+                            </ng-container>
+                            </span>
+                                                </td>
+
+
+
+                                                <!--              <td>-->
+                                                <!--                <i :class="{{data.payment_icon}} me-1"></i>-->
+                                        <!--                    {{data.payment_method}}-->
+                                        <!--              </td>-->
+                                        <td>
+                                            <!-- Button trigger modal -->
+                                            <button (click)="showDetailsOrder(data.id); openViewModal(ViewContent)"
+                                                    type="button" class="btn btn-primary btn-sm btn-rounded">
+                                                Voir la commande
+                                            </button>
+                                        </td>
+                                        <!--                  <td>-->
+                                        <!--                    <div class="d-flex align-item-center justify-content-center">-->
+                                        <!--                      <a href="javascript:void(0);" class=" text-success d-flex align-item-center justify-content-center w-100" (click)="editModal($index)"><i class="fas fa-handshake font-size-18"></i></a>-->
+                                        <!--&lt;!&ndash;
+                            <a href="javascript:void(0);" class="text-danger" (click)="confirm(data.id)"><i class="mdi mdi-delete font-size-18"></i></a>&ndash;&gt;-->
+                                        <!--                    </div>-->
+                                        <!--                  </td>-->
+                                    </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- end table -->
+                    <ul class="pagination pagination-rounded justify-content-end mb-2">
+                        <pagination [totalItems]="orderlist?.length" [itemsPerPage]="8"
+                                    (pagechanged)="pagechanged($event)"></pagination>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Details Model -->
+<ng-template #ViewContent role="document" let-modal>
+    <div class="modal-header">
+        <h5 class="modal-title mt-0" id="orderdetailsModalLabel">Detail de la commande</h5>
+        <button type="button" class="btn-close" aria-hidden="true" (click)="modalRef?.hide()"></button>
+    </div>
+
+    <div class="modal-body" *ngIf="detailsOrder">
+        <h6 class="modal-title mt-2 mb-3 ">Information sur la livraison</h6>
+
+        <p class="mb-2" [ngClass]="{'placeholder-wave': !detailsOrder.created_at}">
+            Date de la commande:
+            <span class="list-id text-primary" [ngClass]="{'placeholder col-4': !detailsOrder.created_at}">
+            {{ detailsOrder.created_at | date }}
+        </span>
+        </p>
+
+        <p class="mb-2" [ngClass]="{'placeholder-wave': !detailsOrder.id}" id="orderlist-overview">
+            ID de la commande:
+            <span class="list-id text-primary" [ngClass]="{'placeholder col-4': !detailsOrder.id}">
+            {{ detailsOrder.order_id }}
+        </span>
+        </p>
+
+        <p class="mb-2" [ngClass]="{'placeholder-wave': !detailsOrder.shipping.first_name}">
+            Nom et Prenom:
+            <span class="orderlist-customer text-primary"
+                  [ngClass]="{'placeholder': !detailsOrder.shipping.first_name}">
+            {{ detailsOrder.shipping.first_name }} {{ detailsOrder.shipping.last_name }}
+        </span>
+        </p>
+
+        <p class="mb-2" [ngClass]="{'placeholder-wave': !detailsOrder.shipping.email}">
+            Email:
+            <span class="orderlist-customer text-primary" [ngClass]="{'placeholder': !detailsOrder.shipping.email}">
+            {{ detailsOrder.shipping.email }}
+        </span>
+        </p>
+
+        <p class="mb-2" [ngClass]="{'placeholder-wave': !detailsOrder.shipping.postcode}">
+            Code postal:
+            <span class="orderlist-customer text-primary" [ngClass]="{'placeholder': !detailsOrder.shipping.postcode}">
+            {{ detailsOrder.shipping.postcode }}
+        </span>
+        </p>
+
+        <p class="mb-2" [ngClass]="{'placeholder-wave': !detailsOrder.shipping.phone}">
+            Telephone:
+            <span class="orderlist-customer text-primary" [ngClass]="{'placeholder': !detailsOrder.shipping.phone}">
+            {{ detailsOrder.shipping.phone }}
+        </span>
+        </p>
+
+        <p class="mb-4" [ngClass]="{'placeholder-wave': !detailsOrder.billing.city || !detailsOrder.billing.address_1}">
+            Adresse:
+            <span class="orderlist-customer text-primary"
+                  [ngClass]="{'placeholder': !detailsOrder.billing.city || !detailsOrder.billing.address_1}">
+            {{ detailsOrder.billing.city }} {{ detailsOrder.billing.address_1 }}
+        </span>
+        </p>
+
+        <div class="table-responsive">
+            <table class="table table-centered table-nowrap">
+                <thead>
+                <tr>
+                    <th scope="col">Produit</th>
+                    <th scope="col">Nom de produit</th>
+                    <th scope="col">Prix</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <tr *ngFor="let items of detailsOrder.items">
+                    <th scope="row">
+                        <div>
+                            <img [src]="items.product_image" alt class="avatar-sm"/>
+                        </div>
+                    </th>
+                    <td>
+                        <div>
+                            <h5 class="text-truncate font-size-14">{{items.product_name}}</h5>
+                            <p class="text-muted mb-0">{{items.price}} x {{items.quantity}}</p>
+                        </div>
+                    </td>
+                    <td>{{items.price * items.quantity}}</td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">
+                        <h6 class="m-0">Total:</h6>
+                    </td>
+                    <td>{{detailsOrder.total }} {{detailsOrder.currency}} </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">
+                        <h6 class="m-0">Mode livraison:</h6>
+                    </td>
+                    <td>Eylos</td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">
+                        <h6 class="m-0">Prix livraison:</h6>
+                    </td>
+                    <td>8 EUR</td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-lg-12">
+            <div class="mb-3">
+                <label class="form-label">Selectionner les livreur(s) disponible</label>
+                <ng-select [loadingText]="'Chargement...'" (change)="dectecDeliveryChanged()"
+                           [(ngModel)]="deliveryselectValue" [items]="selectValue" [placeholder]="'Selection..'"
+                           [multiple]="true"></ng-select>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal-footer d-flex gap-2">
+        <button class="btn btn-success">Paiement de la livraison</button>
+        <button class="btn btn-warning" [disabled]="activeSaveDelivery" (click)="saveDeliverySelected()">Enregistrer les
+            livreurs
+        </button>
+        <button class="btn btn-secondary" (click)="modalRef?.hide()">Fermer</button>
+    </div>
+</ng-template>
+
+<!-- Order Create Model -->
+
+<div bsModal #showModal="bs-modal" class="modal fade" id="showModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add New Order</h5>
+                <button type="button" class="btn-close" id="close-modal" (click)="showModal.hide()"></button>
+            </div>
+            <div class="modal-body">
+                <form (ngSubmit)="saveUser()" [formGroup]="ordersForm" class="needs-validation createorder-form"
+                      id="createorder-form" novalidate>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input type="hidden" class="form-control" id="orderid-input">
+                            <div class="mb-3">
+                                <label for="customername-field" class="form-label">Customer Name</label>
+                                <input type="text" id="customername-field" class="form-control" placeholder="Enter name"
+                                       required formControlName="name"
+                                       [ngClass]="{ 'is-invalid': submitted && form['name'].errors }"/>
+                                @if (submitted && form['name'].errors) {
+                                <div class="invalid-feedback" align="left">
+                                    @if (form['name'].errors['required']) {
+                                <div>Please enter a name.</div>
+                                }
+                                </div>
+                                }
+                            </div>
+                            <div class="mb-3">
+                                <label for="orderdate-input" class="form-label">Order Date</label>
+                                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd"
+                                       formControlName="date">
+                                <div class="invalid-feedback">Please select a date.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="payamount-input" class="form-label">Amount</label>
+                                <input type="text" id="customername-field" class="form-control"
+                                       placeholder="Enter amount" required formControlName="total"
+                                       [ngClass]="{ 'is-invalid': submitted && form['total'].errors }"/>
+                                @if (submitted && form['total'].errors) {
+                                <div class="invalid-feedback" align="left">
+                                    @if (form['total'].errors['required']) {
+                                <div>Please enter amount.</div>
+                                }
+                                </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="paystatus-input" class="form-label">Payment Status</label>
+
+                                <select class="form-control" name="productname-field" id="productname-field"
+                                        formControlName="status"
+                                        [ngClass]="{ 'is-invalid': submitted && form['status'].errors }">
+                                    <option value="Chargeback">Chargeback</option>
+                                    <option value="Paid" selected>Paid</option>
+                                    <option value="Refund">Refund</option>
+                                </select>
+                                @if (submitted && form['status'].errors) {
+                                <div class="invalid-feedback" align="left">
+                                    @if (form['status'].errors['required']) {
+                                <div>Please select a payment status.</div>
+                                }
+                                </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label for="paymethod-input" class="form-label">Payment Method</label>
+                                <select class="form-control" name="payment-method" id="paymethod-input"
+                                        formControlName="payment"
+                                        [ngClass]="{ 'is-invalid': submitted && form['payment'].errors }">
+                                    <option value="Mastercard">Mastercard</option>
+                                    <option value="Visa">Visa</option>
+                                    <option value="Paypal">Paypal</option>
+                                    <option value="COD">COD</option>
+                                </select>
+                                @if (submitted && form['payment'].errors) {
+                                <div class="invalid-feedback" align="left">
+                                    @if (form['payment'].errors['required']) {
+                                <div>Please select a payment method.</div>
+                                }
+                                </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="text-end">
+                                <button type="button" class="btn btn-outline-secondary me-1" (click)="showModal.hide()">
+                                    Cancel
+                                </button>
+                                <button type="submit" id="addNewOrder-btn" class="btn btn-success">Create</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- end modal body -->
+        </div>
+    </div>
+</div>
+<!--End Modal -->
+
+<!-- Modal -->
+<div bsModal #removeItemModal="bs-modal" class="modal fade" id="removeItemModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-body px-4 py-5 text-center">
+                <button type="button" class="btn-close position-absolute end-0 top-0 m-3"
+                        (click)="removeItemModal.hide()"></button>
+                <div class="avatar-sm mb-4 mx-auto">
+                    <div class="avatar-title bg-primary text-primary bg-opacity-10 font-size-20 rounded-3">
+                        <i class="mdi mdi-trash-can-outline"></i>
+                    </div>
+                </div>
+                <p class="text-muted font-size-16 mb-4">Are you Sure You want to Remove this Order ?</p>
+
+                <div class="hstack gap-2 justify-content-center mb-0">
+                    <button type="button" class="btn btn-danger" id="remove-item" (click)="deleteOrder()">Remove Now
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="close-removeOrderModal"
+                            (click)="removeItemModal.hide()">Fermer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end removeItemModal -->

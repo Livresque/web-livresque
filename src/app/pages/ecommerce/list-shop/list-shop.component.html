@@ -1,0 +1,130 @@
+<div class="container-fluid">
+    <app-page-title title="Partenaires" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <div class="search-box me-2 mb-2 d-inline-block">
+                                <div class="position-relative">
+                                    <input type="text" class="form-control" id="select2" placeholder="Rechercher..."
+                                           [(ngModel)]="term" (ngModelChange)="selectname()"/>
+                                    <i class="bx bx-search-alt search-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-8 d-flex align-items-center justify-content-end gap-3">
+                            <div class="col-sm-4">
+                                <select class="form-select"
+                                        [(ngModel)]="selectedFilterActifOrNot"
+                                        (ngModelChange)="selectedFilterActifOrNotFunction()"
+                                >
+                                    <option value="" selected  >Filtrer par..</option>
+                                    <option *ngFor="let item of itemsSelectedFilterActifOrNot" [value]="item.value"  >{{item.label}}</option>
+                                </select>
+                            </div>
+
+                            <div class="text-sm-end refresh-btn">
+                                <button type="button"
+                                        class="btn  btn-rounded mb-2 me-2"
+                                        [ngClass]="{'btn-success': isSuccess, 'btn-dark': !isSuccess}"
+                                        (click)="onButtonClick();refreshOderData()">
+                                    <ng-container *ngIf="isSuccess">
+                                        <i class="bx bx-loader bx-spin font-size-16 align-middle me-2"></i>
+                                    </ng-container>
+                                    <ng-container *ngIf="!isSuccess">
+                                        <i class="bx bx-check-double font-size-16 align-middle me-2"></i>
+                                    </ng-container>
+                                    Rafraichir
+                                </button>
+                            </div>
+                        </div>
+                        <!-- end col-->
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle table-nowrap dt-responsive nowrap w-100"
+                               id="customerList-table">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Profile</th>
+                                <th>Boutique</th>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Email administrateurs</th>
+                                <th>Téléphone</th>
+                                <th >Adrress</th>
+                                <th >Statut</th>
+
+                                <th>Rating</th>
+                                <th>Date d'inscription</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr *ngFor="let customers of customersData; let i = index" id="c_{{i}}">
+                                <td>{{ i + 1 }}</td>
+                                <td>
+                                    <div>
+                                        <img class="rounded-circle avatar-xs"
+                                             [src]="environment.media_url + customers.profile_picture"
+                                             alt="">
+                                    </div>
+                                </td>
+                                <td>{{ customers.username }}</td>
+                                <td class="align-middle">
+                                    <p class="mb-1">{{ customers.first_name }}</p>
+                                </td>
+                                <td class="align-middle">{{ customers.last_name }}</td>
+                                <td class="align-middle">{{ customers.email }}</td>
+                                <td class="align-middle">776606106</td>
+                                <td class="align-middle" role='button'  >
+                                    <span [title]="customers.adresse"
+                                          style="width: 150px;"
+                                          class="d-block font-size-15 text-truncate">
+                                        {{ customers.adresse }}
+                                    </span>
+                                </td>
+                                <td class="align-middle">
+                                    <span class="badge badge-pill badge-soft-success font-size-11"
+
+                                          [ngClass]=" {
+                                        'badge-soft-danger': customers.is_active == false,
+                                        'badge-soft-success': customers.is_active == true
+
+                                                        }"
+                                    >
+
+                                        <ng-container *ngIf="customers.is_active; else nonactif">
+                                            Actif
+                                        </ng-container>
+                                        <ng-template #nonactif>
+                                            Non actif
+                                        </ng-template>
+                                    </span>
+                                </td>
+
+                                <td class="align-middle">
+                                        <span class="badge bg-success font-size-12">
+                                          <i class="mdi mdi-star me-1"></i>
+                                            4,1
+                                        </span>
+                                </td>
+                                <td class="align-middle">{{ customers.created_at | date: 'dd MMM, YYYY' }}</td>
+
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- pagination -->
+                    <ul class="pagination pagination-rounded justify-content-end mb-2">
+                        <pagination [totalItems]="returnedArray?.length" [itemsPerPage]="8"
+                                    (pageChanged)="pageChanged($event)"></pagination>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end row -->
+</div>

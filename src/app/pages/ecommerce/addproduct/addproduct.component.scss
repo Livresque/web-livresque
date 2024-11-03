@@ -1,0 +1,14 @@
+
+::ng-deep .ng2-tag-input--focused, ::ng-deep .ng2-tag-input{
+  border: 1px solid #ced4da !important;
+  border-radius: 0.25rem  !important;
+  padding: 0px 05px !important;
+}
+
+::ng-deep { /* to penetrate <ngx-editor> CSS styling */
+
+  .NgxEditor {
+    height: 300px;
+    overflow-y: scroll;
+  }
+}
