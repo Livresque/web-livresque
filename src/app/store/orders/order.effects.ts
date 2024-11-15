@@ -47,7 +47,7 @@ export class OrderEffects {
             ofType(fetchEcoorderDataData),
             switchMap(() =>
                 this.CrudService.fetchDataWithLocalStorageTokenHeader(
-                    environment.api_url + 'orders/'+this.currentUserId+'/', this.userConnectedHeader)
+                    environment.api_url + 'orders//seller/'+this.currentUserId+'/', this.userConnectedHeader)
                     .pipe(
                     take(1),
                     map((orderDatas: OrdersModel[]) => fetchEcoorderDataSuccess({ orderDatas })),
