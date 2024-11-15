@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { environment } from '../environments/environment';
 
 // Swiper Slider
 import { SlickCarouselModule } from 'ngx-slick-carousel';
@@ -42,13 +41,7 @@ import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { CartEffects } from './store/Cart/cart.effects';
 
 import {authInterceptorProviders} from "./core/helpers/auth.interceptor";
-
-if (environment.defaultauth === 'firebase') {
-  initFirebaseBackend(environment.firebaseConfig);
-} else {
-  // tslint:disable-next-line: no-unused-expression
-  FakeBackendInterceptor;
-}
+import { environment } from 'src/environments/environment.prod';
 
 export function createTranslateLoader(http: HttpClient): any {
   return new TranslateHttpLoader(http, 'assets/i18n/', '.json');
@@ -61,7 +54,6 @@ export function createTranslateLoader(http: HttpClient): any {
     bootstrap: [AppComponent],
     imports: [BrowserModule,
         BrowserAnimationsModule,
-        AngularFireModule.initializeApp(environment.firebaseConfig),
         AngularFireAuthModule,
         TranslateModule.forRoot({
             loader: {
