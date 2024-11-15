@@ -17,7 +17,7 @@ export class AuthGuard implements CanActivate {
         if (currentUser && currentUser?.data.email != '' && currentUser.status==true) {
             return true;
         } else {
-            alert("deconnexion")
+            // alert("deconnexi")
             this.router.navigate(['/auth/login'], { queryParams: { returnUrl: state.url } });
             return false;
         }
