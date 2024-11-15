@@ -19,8 +19,11 @@ export class ErrorInterceptor implements HttpInterceptor {
         return next.handle(request).pipe(catchError(err => {
             if (err.status === 401) {
                 // auto logout if 401 response returned from api
+                this.toastrService.error("Une erreur est survenue. Veuillez vous connecter")
+
                 this.authenticationService.logout();
-                location.reload();
+                // location.reload();
+                console.log(err)
             }else if (err.status === 0){
                 this.toastrService.error("Erreur de connexion. Vérifiez votre réseau internet!")
             }

@@ -1,8 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { productModel, productList } from '../product.model';
-import { Options } from 'ngx-slider-v2';
 import { HttpClient } from '@angular/common/http';
-import {DeliveryModel} from "../../../store/delivery/delivery.model";
 import {Product, ProductsCategoriesModels} from "../../../core/models/products.models";
 import {UserProductsDataService} from "../../../core/services/user-products-data.service";
 import {CrudService} from "../../../core/services/crud.service";
@@ -41,8 +38,7 @@ export class ProductsComponent implements OnInit {
     { value: "Disponible", label: 'En promotion' },
     { value: "Non disponible", label: 'Pas de promotion' },
   ];
-  tempsCustomersData!: DeliveryModel[]
-  customersData: DeliveryModel[];
+
 
   //current user categories and Product
   currentUserCategories: { id: number, property1: string }[] = []
@@ -65,7 +61,7 @@ export class ProductsComponent implements OnInit {
       private crudService: CrudService,
       public formBuilder: UntypedFormBuilder,
       private tokenStorage: TokenStorageService,
-      private reusableFunction: ReusableFunctionService,
+      public reusableFunction: ReusableFunctionService,
       private modalService: BsModalService,
 
       private reusFunction: ReusableFunctionService,
@@ -100,6 +96,7 @@ export class ProductsComponent implements OnInit {
   getCurrentUserProduct(){
     // Souscrire aux produits affichés
     this.userProductsDataService.displayedProducts.subscribe((products) => {
+      console.log(products)
       this.currentUserProduct = products;
       this.initialProducts = products
     });
@@ -158,23 +155,7 @@ export class ProductsComponent implements OnInit {
   //   }, this.discountRates);
   // }
 
-  selectedFilterActifOrNotFunction() {
-    if (this.customersData.length === 0){
-      this.customersData = this.tempsCustomersData;
-      console.log("customersData est vide");
-      console.log(this.customersData);
-    }else{
-      if (this.selectedFilterActifOrNot.length>0) {
-        this.customersData = this.customersData.filter((es: DeliveryModel) => {
-          return es.is_available === this.selectedFilterActifOrNot.toString()
-        });
-        console.log(this.customersData);
-        console.log(this.selectedFilterActifOrNot);
-      } else {
-        this.customersData = this.tempsCustomersData;
-      }
-    }
-  }
+
 
   openModal(content: any, categoryId: number, categoryName: string) {
     this.submitted = false;
@@ -199,7 +180,7 @@ export class ProductsComponent implements OnInit {
     }
 
     this.formDataCategorie.patchValue({
-      user: this.tokenStorage.getUser().id,
+      user: this.tokenStorage.getUser().data.user_id,
       name: this.reusFunction.NormaliseToLowerCase(this.formDataCategorie.get('name').value).trim()
 
     })

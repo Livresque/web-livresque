@@ -17,8 +17,8 @@ export class ReusableFunctionService {
 
   fieldLabels = {
     username: "Nom d'utilisateur",
-    first_name: "Prénom",
-    last_name: "Nom de famille",
+    firstname: "Prénom",
+    lastname: "Nom de famille",
     phone: "Numéro de téléphone",
     email: "Adresse e-mail",
     address: "Adresse",
@@ -93,7 +93,7 @@ export class ReusableFunctionService {
       throw new Error("Le prix initial doit être supérieur à zéro.");
     }
     const discountPercentage = ((originalPrice - discountedPrice) / originalPrice) * 100;
-    return discountPercentage;
+    return parseFloat(discountPercentage.toFixed(2));
   }
 
   formatValuesString(valuesString: string): string | null {

@@ -37,13 +37,13 @@
                                                     class="form-control w-75"
                                                     placeholder="Addresse email."
                                                     type="email"
-                                                    name="last_name"
+                                                    name="lastname"
                                                     autocomplete="off"
-                                                    formControlName="last_name"
+                                                    formControlName="lastname"
                                                     required
-                                                    [ngClass]="{'is-invalid': isSubmitted && formControls.last_name.invalid}"
+                                                    [ngClass]="{'is-invalid': isSubmitted && formControls.lastname.invalid}"
                                             />
-                                            <div *ngIf="isSubmitted && formControls.last_name.invalid" class="invalid-feedback">
+                                            <div *ngIf="isSubmitted && formControls.lastname.invalid" class="invalid-feedback">
                                                 <span>Le Email du user est obligatoire.</span>
                                             </div>
                                         </div>
@@ -70,7 +70,7 @@
                 </div>
                 <div class="mt-5 text-center">
                     <p>Vous n'avez pas reçu de code ? <a href="/auth/reset-password" class="fw-medium text-primary"> Ressayer </a> </p>
-                    <p>© {{year}} Eylos. Crafted with <i class="mdi mdi-heart text-danger"></i> by Wisourcing</p>
+                    <p>© {{year}} Eylos. Crafted with <i class="mdi mdi-heart text-danger"></i> by .</p>
                 </div>
 
             </div>

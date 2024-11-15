@@ -32,6 +32,7 @@ export class AuthenticationEffects {
 
                             // Stocker les tokens dans le localStorage
                             const user = {
+                                id: response.id,
                                 accessToken: response.token,
                                 refreshToken: response.token,
                             };
@@ -39,7 +40,7 @@ export class AuthenticationEffects {
                             this.tokenStorage.saveRefreshToken(user.accessToken);
 
                             // Récupérer les détails de l'utilisateur
-                            return this.userService.getDetailUser().pipe(
+                            return this.userService.getDetailUser(user.id).pipe(
                                 map((dataUser: any) => {
                                     // Si l'utilisateur est trouvé, dispatch "loginSuccess"
                                     if (dataUser) {

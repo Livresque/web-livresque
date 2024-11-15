@@ -37,7 +37,7 @@ export class SteptwoverificationComponent implements OnInit {
     document.body.classList.remove('auth-body-bg');
     // Initialisation du formulaire réactif
     this.userForm = this.formBuilder.group({
-      last_name: ['', Validators.required], // Champ Prénom avec validation requise
+      lastname: ['', Validators.required], // Champ Prénom avec validation requise
       otp: ['', Validators.required] // OTP avec validation
     });
 

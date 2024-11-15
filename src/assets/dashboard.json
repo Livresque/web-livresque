@@ -73,11 +73,11 @@
 
   "sassEarning": [{
     "name": "Ce mois",
-    "amount": "$2453.35",
+    "amount": "10000 XOF",
     "revenue": "0.4",
     "time": "Depuis le mois précédent",
     "month": "Mois dernier",
-    "previousamount": "$2281.04",
+    "previousamount": "0 XOF",
     "series": [{
       "name": "series1",
       "data": [31, 40, 36, 51, 49, 72, 69, 56, 68, 82, 68, 76]

@@ -17,9 +17,9 @@ export class UserProfileService {
     /***
      * Get All User
      */
-    getDetailUser() {
+    getDetailUser(userId: any) {
         //J'utilise un intercepteur pour ajouter en automatique le header Baerer
-        return this.http.get<User>(environment.api_url+'user-detail/');
+        return this.http.get<User>(environment.api_url+'users/'+userId+'/');
     }
 
 
@@ -27,6 +27,6 @@ export class UserProfileService {
      * Facked User Register
      */
     register(user: User) {
-        return this.http.post(`/users/register`, user);
+        return this.http.post(`/users/register/`, user);
     }
 }

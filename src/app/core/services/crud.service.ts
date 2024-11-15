@@ -22,10 +22,17 @@ export class CrudService {
         return this.http.get<any>(url, { headers });
     }
 
+    fetchDataWithLocalStorageTokenHeader(url: string, headers: HttpHeaders): Observable<any> {
+        return this.http.get<any>(url, { headers });
+    }
+
 
     addData(url: any, newData: any): Observable<any[]> {
         return this.http.post<any[]>(url, newData);
     }
+    // addData(url: any, newData: any): Observable<any[]> {
+    //     return this.http.post<any[]>(url, newData);
+    // }
 
     addDataWithHeader(url: any, newData: any, headers: HttpHeaders): Observable<any> {
         console.log(newData)
@@ -35,6 +42,9 @@ export class CrudService {
     updateData(url: any, updatedData: any): Observable<any[]> {
         return this.http.put<any[]>(url, updatedData);
     }
+    updateDataOneWithHeader(url: any, updatedData: any, headers: HttpHeaders): Observable<any> {
+        return this.http.put<any>(url, updatedData, {headers:headers});
+    }
 
     patchData(url: any, updatedData: any): Observable<any[]> {
         return this.http.patch<any[]>(url, updatedData);
@@ -42,5 +52,8 @@ export class CrudService {
 
     deleteData(url: any): Observable<void> {
         return this.http.delete<void>(url);
+    }
+    deleteDataOneWithHeader(url: any, headers: HttpHeaders): Observable<void> {
+        return this.http.delete<void>(url, {headers:headers});
     }
 }

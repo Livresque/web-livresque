@@ -1,27 +1,24 @@
 export interface Product {
-    id: number;
+    id: number
     name: string;
-    manufacture_name?: string;  // Le "?" signifie que ce champ est optionnel
-    manufacture_brand?: string;
-    price: number;
-    promotional_price?: number;
-    main_image: string;  // URL de l'image principale
-    category: number;  // Référence à une autre interface `Category` pour la catégorie du produit
-    features: string;  // Caractéristiques supplémentaires du produit
-    quantity?: number;
-    weight?: string;
-    size?: string;
-    dimensions?: string;
-    product_state?: string;
-    productOptions: string;
-    product_note:number;
-    stock_state?: string;
-    user: User;  // Référence à une autre interface `User` pour l'utilisateur associé
-    variant_images: ProductVariantImage[];  // Liste des images de variantes
-    ratings?: number;  // Note du produit
-    oriRate?: number;  // Taux original (avant réduction)
-    discount?: number;  // Pourcentage de réduction
+    regular_price: number;
+    sale_price: number;
+    description: string;
+    short_description: string;
+    categories: any[];
+    productsDetailsCategories: ProductsDetailsCategories[];
+    front_cover: string;
+    back_cover: string;
+    downloads: string[];
+    isbn: string;
+    author_name: string;
+    summary: string;
+    page_num: number;
+    genre: string;
+    age: number;
+    published_year: number;
 }
+
 
 export interface ProductVariantImage {
     id: number;
@@ -37,6 +34,35 @@ export interface User {
 export class ProductsCategoriesModels{
     id: number
     property1: string
+}
+export class ProductsDetailsCategories{
+    id: number
+    name: string
+}
+export class ProjetCategoriesModels{
+
+    id: number;
+    name: string;
+    slug: string;
+    parent: number;
+    description: string;
+    display: string;
+    image: string;
+    menu_order: number;
+    count: number;
+    _links: {
+        self: [
+            {
+                href: string
+            }
+        ];
+        collection: [
+            {
+                href: string
+            }
+        ]
+    }
+
 
 }
 

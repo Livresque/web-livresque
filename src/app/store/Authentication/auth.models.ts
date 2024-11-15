@@ -1,66 +1,35 @@
-// export class User {
-  // id?: number;
-  // username?: string;
-  // password?: string;
-  // firstName?: string;
-  // lastName?: string;
-  // token?: string;
-  // email?: string;
-// }
-
-
-export class User {
-  id:number;
-  email: string;
-  username: string;
-  first_name: string;
-  last_name: string;
-  role: string;
-  adresse:string;
-  about_us:string;
-  profile_picture:string;
-  is_active: boolean;
-  is_staff: boolean;
-  is_superuser: boolean;
-  created_at: Date;
-}
-
-// export class UserRegister{
-//   email: string;
-//   username: string;
-//   first_name: string;
-//   last_name: string;
-//   role: string;
-//   password: string
-//   profile_picture: string;
-// }
-
-
-
-export class UserRegister {
-  username: string;
+export interface Address {
   firstname: string;
   lastname: string;
-  password: string;
-  email: string;
-  role: string;
-  profile?: File;
-  about?: string;
-  active?: true;
-  address_1?: string;
-  address_2?: string;
-  city?: string;
-  postcode?: string;
-  state?: string;
-  phone?: string;
-  country: string
-}
-export class UserAddress {
+  company: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  postcode: string;
   country: string;
+  state: string;
+  phone: string;
 }
 
+export interface UserData {
+  email: string;
+  firstname: string;
+  lastname: string;
+  username: string;
+  country: string;
+  address: Address;
+  user_id: number;
+  role: string;
+  password: string;
+  profile: string | null;
+  active: boolean;
+  created_at: string;
+  about: string | null;
+  profile_picture:string
+}
 
-export class AuthResponse {
-  token: string;
-  user: User;
+export interface User {
+  status: boolean;
+  message: string;
+  data: UserData;
 }

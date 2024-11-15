@@ -10,7 +10,7 @@ import {ToastrService} from "ngx-toastr";
 import {CrudService} from "../../../core/services/crud.service";
 import {environment} from "../../../../environments/environment.prod";
 import {take} from "rxjs";
-import {UserRegister} from "../../../store/Authentication/auth.models";
+import {User, UserData} from "../../../store/Authentication/auth.models";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {headersAuth} from "../../../core/services/constants";
 
@@ -75,17 +75,20 @@ export class SignupComponent implements OnInit {
     });
 
 
-    this.crudService.fetchDataWithHeader(environment.api_url+'users', headersAuth)
-        .subscribe((userItems: UserRegister[])=>{
+
+    this.crudService.fetchDataOne(environment.api_url+'users/')
+        .subscribe((userItems: User)=>{
+          const userItemsData:any = userItems.data
 
           console.log(userItems)
-          userItems.forEach(items=>{
-            this.userArrayUsername.push(items.username)
-            this.userArrayEmail.push(items.email)
-          })
-          this.usersEmailUsername = [...this.userArrayEmail, ...this.userArrayUsername]
-
-    })
+          if (userItems){
+            userItemsData.map(items=>{
+              this.userArrayUsername.push(items.username)
+              this.userArrayEmail.push(items.email)
+            })
+            this.usersEmailUsername = [...this.userArrayEmail, ...this.userArrayUsername]
+          }
+        })
 
   }
 
@@ -118,11 +121,11 @@ export class SignupComponent implements OnInit {
   onSubmit() {
     this.submitted = true;
     this.signupForm.patchValue({
-      role: 'client'
+      role: 'seller'
     });
 
     if (this.signupForm.valid ) {
-      const userObject: UserRegister = {
+      const userObject: Partial<UserData> = {
         username: this.signupForm.get('username')?.value,
         firstname: this.signupForm.get('firstname')?.value,
         lastname: this.signupForm.get('lastname')?.value,

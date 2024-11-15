@@ -1,11 +1,11 @@
 import {createAction, props} from '@ngrx/store';
-import {User, UserRegister} from './auth.models';
+import {User, UserData} from './auth.models';
 
 // Register action
 export const Register = createAction(
     '[Authentication] Register',
     props<{
-        user: UserRegister
+        user: Partial<UserData>
     }>());
 export const RegisterSuccess = createAction(
     '[Authentication] Register Success',

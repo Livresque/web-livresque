@@ -44,18 +44,18 @@ export const MENU: MenuItem[] = [
                 link: '/ecommerce/orders',
                 parentId: 13
             },
-            {
-                id: 17,
-                label: 'MENUITEMS.ECOMMERCE.LIST.CUSTOMERS',
-                link: '/ecommerce/customers',
-                parentId: 13
-            },
-            {
-                id: 18,
-                label: 'MENUITEMS.ECOMMERCE.LIST.SHOP',
-                link: '/ecommerce/list-shop',
-                parentId: 13
-            }
+            // {
+            //     id: 17,
+            //     label: 'MENUITEMS.ECOMMERCE.LIST.CUSTOMERS',
+            //     link: '/ecommerce/customers',
+            //     parentId: 13
+            // },
+            // {
+            //     id: 18,
+            //     label: 'MENUITEMS.ECOMMERCE.LIST.SHOP',
+            //     link: '/ecommerce/list-shop',
+            //     parentId: 13
+            // }
         ]
     },
     {

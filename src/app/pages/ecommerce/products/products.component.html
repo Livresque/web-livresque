@@ -28,34 +28,15 @@
                   <span>
                     <i class="mdi mdi-chevron-right me-1"></i>
                   <span class="tablist-name text-capitalize">
-                    {{item.name}}
+                    {{item.property1}}
                   </span>
                   </span>
 
-                  <span>
-                     <i class="mdi mdi-lead-pencil me-1"
-                        (click)="openModal(updatenewcategorie, item.id, item.name)">
-                     </i>
-                  </span>
 
                 </a>
               </li>
 
             </ul>
-          </div>
-
-          <div class="mt-4 pt-3">
-
-            <div id="rating-promotion">
-              <h5 class="font-size-14 mb-3">Promotion</h5>
-              <select class="form-select"
-                      [(ngModel)]="selectedFilterActifOrNot"
-                      (ngModelChange)="selectedFilterActifOrNotFunction()"
-              >
-                <option value="" selected  >Filtrer par..</option>
-                <option *ngFor="let item of itemsSelectedFilterActifOrNot" [value]="item.value"  >{{item.label}}</option>
-              </select>
-            </div>
           </div>
 
 
@@ -102,14 +83,14 @@
               <div class="card-body">
                 <div class="product-img position-relative">
                   <!-- Affichage de la réduction si elle existe -->
-                  <div class="avatar-sm product-ribbon" *ngIf="product.promotional_price">
+                  <div class="avatar-sm product-ribbon" *ngIf="product.sale_price">
               <span class="avatar-title rounded-circle bg-primary">
-                {{ reusableFunction.calculateDiscountPercentage(product.price, product.promotional_price) }}%
+                {{ reusableFunction.calculateDiscountPercentage(product.regular_price, product.sale_price) }}%
               </span>
                   </div>
 
                   <!-- Image principale du produit -->
-                  <img [src]="environment.api_url+'media/'+product.main_image" alt="" class="img-fluid mx-auto d-block">
+                  <img [src]="product.front_cover" alt="" class="img-fluid mx-auto d-block">
                 </div>
 
                 <div class="mt-4 d-flex align-items-center">
@@ -127,7 +108,7 @@
                   </div>
                   <div class="flex-shrink-0">
                     <h5 class="my-0">
-                      <b>€{{ product.price }}</b>
+                      <b>€{{ product.regular_price }}</b>
                     </h5>
                   </div>
                 </div>

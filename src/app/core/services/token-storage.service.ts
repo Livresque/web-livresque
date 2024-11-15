@@ -60,19 +60,36 @@ export class TokenStorageService {
       return JSON.parse(decryptedUser);
     }
     return {
-      created_at: undefined,
-      email: "",
-      first_name: "",
-      is_active: false,
-      is_staff: false,
-      adresse: "",
-      about_us: "",
-      is_superuser: false,
-      profile_picture:"",
-      last_name: "",
-      role: "",
-      username: "",
-      id: undefined
+      status: true,
+      message: "",
+      data: {
+        user_id: 1,
+        country: "",
+        password: "",
+        email: "",
+        firstname: "Jn",
+        lastname: "",
+        username: "",
+        address: {
+          firstname: "",
+          lastname: "",
+          company: "",
+          address_1: "",
+          address_2: "",
+          city: "",
+          postcode: "",
+          country: "",
+          state: "",
+          phone: ""
+        },
+        role: "",
+        profile_picture: "",
+        profile: null,
+        active: true,
+        created_at: "",
+        about: ""
+      }
+
 
     };
   }

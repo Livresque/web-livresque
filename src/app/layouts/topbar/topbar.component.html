@@ -57,7 +57,7 @@
       </div>
 
       <div class="dropdown d-inline-block" dropdown>
-        <button type="button" class="btn header-item" id="page-header-user-dropdown" dropdownToggle>
+        <button type="button" class="btn header-item"  dropdownToggle>
           @if(flagvalue === undefined){
           <img src="{{valueset}}" alt="Header Language" height="16">
           }@else{
@@ -171,8 +171,17 @@
 
       <div class="dropdown d-inline-block" dropdown>
         <button type="button" class="btn header-item" dropdownToggle id="page-header-user-dropdown">
-          <img class="rounded-circle header-profile-user" [src]="environment.api_url+'media/'+currentUsername.profile_picture" alt="Header Avatar">
-          <span class="d-none d-xl-inline-block ms-1">{{currentUsername.username}} </span>
+
+            <ng-container *ngIf="currentUsername?.data?.profile_picture; else defaultProfile">
+                <img class="rounded-circle header-profile-user" [src]="environment.api_url+'media/'+currentUsername?.data?.profile_picture" alt="Header Avatar">
+
+            </ng-container>
+            <ng-template #defaultProfile>
+                <img class="rounded-circle header-profile-user"
+                     src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="Header Avatar">
+
+            </ng-template>
+            <span class="d-none d-xl-inline-block ms-1">{{currentUsername.data?.username}} </span>
           <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
         </button>
         <div class="dropdown-menu dropdown-menu-end" *dropdownMenu>

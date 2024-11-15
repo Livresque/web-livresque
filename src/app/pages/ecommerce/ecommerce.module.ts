@@ -22,9 +22,7 @@ import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { ProductsComponent } from './products/products.component';
 import { ProductdetailComponent } from './productdetail/productdetail.component';
 import { AddproductComponent } from './addproduct/addproduct.component';
-import { DeliveryComponent } from './delivery/delivery.component';
 import { OrdersComponent } from './orders/orders.component';
-import {ListShopComponent} from "./list-shop/list-shop.component";
 
 // dropzone
 import { DropzoneModule } from 'ngx-dropzone-wrapper';
@@ -48,9 +46,7 @@ const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
       ProductsComponent,
       ProductdetailComponent,
       AddproductComponent,
-      DeliveryComponent,
       OrdersComponent,
-      ListShopComponent
 
   ],
     imports: [

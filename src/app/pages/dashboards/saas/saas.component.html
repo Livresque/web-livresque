@@ -9,11 +9,11 @@
                         <div class="col-7">
                             <div class="text-primary p-2">
                                 <h5 class="text-primary">Bienvenue !</h5>
-                                <p>{{currentUser.first_name + ' ' + currentUser.last_name}}</p>
+                                <p>{{currentUser?.data?.firstname + ' ' + currentUser?.data?.lastname}}</p>
 
                                 <ul class="ps-3 mb-0">
                                     <li class="py-1 text-uppercase">
-                                        {{currentUser.role}}
+                                        {{currentUser?.data?.role}}
                                     </li>
                                     <li class="py-1">
                                         <a href="mailto:Lawsonaldrich@gmail.com">(0) Mise a jour(s)</a>
@@ -42,7 +42,7 @@
                                 <h5 class="font-size-14 mb-0">total des commandes</h5>
                             </div>
                             <div class="text-muted mt-4">
-                                <h4>1,452 <i class="mdi mdi-chevron-up ms-1 text-success"></i></h4>
+                                <h4>{{currentUserSellerStatistique?.data?.sales_by_product?.length}} <i class="mdi mdi-chevron-up ms-1 text-success"></i></h4>
                                 <div class="d-flex">
                                     <span class="badge badge-soft-success font-size-12"> + 0.2% </span> <span class="ms-2 text-truncate">Depuis la période précédente</span>
                                 </div>
@@ -63,9 +63,9 @@
                                 <h5 class="font-size-14 mb-0">Revenue total</h5>
                             </div>
                             <div class="text-muted mt-4">
-                                <h4>$ 28,452 <i class="mdi mdi-chevron-up ms-1 text-success"></i></h4>
+                                <h4>{{currentUserSellerStatistique?.data?.total_sales?.total_amount }} XOF <i class="mdi mdi-chevron-up ms-1 text-success"></i></h4>
                                 <div class="d-flex">
-                                    <span class="badge badge-soft-success font-size-12"> + 0.2% </span> <span class="ms-2 text-truncate">Depuis la période précédente</span>
+                                    <span class="badge badge-soft-success font-size-12"> + 0.1% </span> <span class="ms-2 text-truncate">Depuis la période précédente</span>
                                 </div>
                             </div>
                         </div>
@@ -78,73 +78,19 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-lg-12 align-self-center">
-                            <div class="text-lg-center ">
-                                <div class="row mt-4 mt-lg-0">
-                                    <div class="col-3">
-                                        <div>
-                                            <p class="text-muted text-truncate mb-2">Total livreurs</p>
-                                            <h5 class="mb-0">48</h5>
-                                        </div>
-                                    </div>
-                                    <div class="col-3">
-                                        <div>
-                                            <p class="text-muted text-truncate mb-2">Livraison en cours</p>
-                                            <h5 class="mb-0">22</h5>
-                                        </div>
-                                    </div>
-                                    <div class="col-3">
-                                        <div>
-                                            <p class="text-muted text-truncate mb-2">Total Partenaire</p>
-                                            <h5 class="mb-0">40</h5>
-                                        </div>
-                                    </div>
-                                    <div class="col-3">
-                                        <div>
-                                            <p class="text-muted text-truncate mb-2">Commandes(En cours)</p>
-                                            <h5 class="mb-0">18</h5>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                    <!-- end row -->
-                </div>
-            </div>
-        </div>
-    </div>
-
 
 
     <div class="row">
-        <div class="col-xl-8">
+        <div class="col-xl-6">
             <div class="card">
                 <div class="card-body">
                     <div class="clearfix">
-                        <div class="float-end">
-                            <div class="input-group input-group-sm">
-                                <select class="form-select form-select-sm" (change)="selectMonth($event)">
-                                    <option value="january" selected>Jan</option>
-                                    <option value="december">Dec</option>
-                                    <option value="november">Nov</option>
-                                    <option value="october">Oct</option>
-                                </select>
-                                <label class="input-group-text">Month</label>
-                            </div>
-                        </div>
+
                         <h4 class="card-title mb-4">Analyse des commandes</h4>
                     </div>
                     @for (item of sassEarning; track $index) {
                     <div class="row">
-                        <div class="col-lg-4">
+                        <div class="col-lg-6">
                             <div class="text-muted">
                                 <div class="mb-4">
                                     <p>{{item.name}}</p>
@@ -164,20 +110,15 @@
 
                             </div>
                         </div>
-
-                        <div class="col-lg-8">
-                            <apx-chart class="apex-charts" dir="ltr" [series]="item.series" [chart]="earningLineChart.chart" [colors]="earningLineChart.colors" [stroke]="earningLineChart.stroke" [dataLabels]="earningLineChart.dataLabels">
-                            </apx-chart>
-                        </div>
                     </div>}
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-4">
+        <div class="col-xl-6">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title mb-4">Zones de livraison régulier</h4>
+                    <h4 class="card-title mb-4">Pays ayant le plus acheter</h4>
 
                     <div>
                         <apx-chart class="apex-charts" dir="ltr" [series]="salesAnalyticsDonutChart.series" [chart]="salesAnalyticsDonutChart.chart" [colors]="salesAnalyticsDonutChart.colors" [plotOptions]="salesAnalyticsDonutChart.plotOptions" [legend]="salesAnalyticsDonutChart.legend" [labels]="salesAnalyticsDonutChart.labels">
@@ -189,22 +130,25 @@
                             <div class="col-4">
                                 <div class="mt-4">
                                     <p class="mb-2 text-truncate"><i class="mdi mdi-circle text-primary me-1"></i>
-                                        Boutique A</p>
-                                    <h5>$ 2,132</h5>
+                                        Benin
+                                    </p>
+<!--                                    <h5>$ 2,132</h5>-->
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="mt-4">
                                     <p class="mb-2 text-truncate"><i class="mdi mdi-circle text-success me-1"></i>
-                                        Boutique B</p>
-                                    <h5>$ 1,763</h5>
+                                        Senegal
+                                    </p>
+<!--                                    <h5>$ 1,763</h5>-->
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="mt-4">
                                     <p class="mb-2 text-truncate"><i class="mdi mdi-circle text-danger me-1"></i>
-                                        Boutique C</p>
-                                    <h5>$ 973</h5>
+                                        Benin
+                                    </p>
+<!--                                    <h5>$ 973</h5>-->
                                 </div>
                             </div>
                         </div>
@@ -215,526 +159,13 @@
     </div>
     <!-- end row -->
 
-    <div class="row">
-        <div class="col-xl-6">
-            <div class="card">
-                <div class="card-body">
-                    <div class="clearfix">
-                        <div class="float-end">
-                            <div class="input-group input-group-sm">
-                                <select class="form-select form-select-sm" (change)="sellingProduct($event)">
-                                    <option value="january" selected>Jan</option>
-                                    <option value="december">Dec</option>
-                                    <option value="november">Nov</option>
-                                    <option value="october">Oct</option>
-                                </select>
-                                <label class="input-group-text">Month</label>
-
-                            </div>
-                        </div>
-                        <h4 class="card-title mb-4 text-uppercase">Boutique avec le plus de commande</h4>
-                    </div>
-                    @for (data of sassTopSelling; track $index) {
-                    <div>
-                        <div class=" text-muted text-center">
-                            <p class="mb-2">{{ data.title }}</p>
-                            <h4>{{ data.amount }}</h4>
-                            <p class="mt-4 mb-0"><span class="badge badge-soft-success font-size-11 me-2"> {{
-                                    data.revenue }}%
-                                <i class="mdi mdi-arrow-up"></i> </span>
-                                From previous period
-                            </p>
-                        </div>
-
-                        <div class="table-responsive mt-4">
-                            <table class="table align-middle mb-0">
-                                <tbody>
-                                    @for (item of data.list; track $index) {
-                                    <tr>
-                                        <td>
-                                            <h5 class="font-size-14 mb-1">{{ item.name }}</h5>
-                                            <p class="text-muted mb-0">{{ item.text }}</p>
-                                        </td>
-
-                                        <td>
-                                            <app-sellingchart :value={{item.sales}} :Chartcolor="{{item.chartVariant}}">
-                                            </app-sellingchart>
-                                        </td>
-                                        <td>
-                                            <p class="text-muted mb-1">Sales</p>
-                                            <h5 class="mb-0">{{ item.sales }} %</h5>
-                                        </td>
-                                    </tr>
-                                    }
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    }
-                </div>
-            </div>
-        </div>
-
-
-
-        <div class="col-xl-6">
-            <div class="card">
-                <div class="card-body border-bottom">
-                    <div class="row">
-                        <div class="col-md-6 col-11">
-                            <h5 class="font-size-15 mb-1 fw-bold text-uppercase">Messagerie general</h5>
-                            <p class="text-muted mb-0"><i class="mdi mdi-circle text-success align-middle me-1"></i>
-                                Active now</p>
-                        </div>
-                        <div class="col-md-6 col-3">
-                            <ul class="list-inline user-chat-nav text-end mb-0">
-                                <li class="list-inline-item d-none d-sm-inline-block">
-                                    <form class="p-3">
-                                        <div class="m-0">
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" placeholder="Rechercher ..." aria-label="Recipient's username">
-                                                <div class="input-group-append">
-                                                    <button class="btn btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </li>
-
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body pb-0">
-                    <div>
-                        <div class="chat-conversation">
-                            <ul class="list-unstyled">
-                                <ngx-simplebar style="height: 260px;" #scrollRef>
-                                    <li>
-                                        <div class="chat-day-title">
-                                            <span class="title">Today</span>
-                                        </div>
-                                    </li>
-                                    @for (data of ChatData; track $index) {
-                                    <li [ngClass]="{ 'right': data.align === 'right' }">
-                                        <div class="conversation-list">
-                                            <div class="dropdown" dropdown>
-                                                <a class="dropdown-toggle" href="javascript: void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" dropdownToggle>
-                                                    <i class="bx bx-dots-vertical-rounded"></i>
-                                                </a>
-                                                <div class="dropdown-menu" *dropdownMenu>
-                                                    <a class="dropdown-item" href="javascript: void(0);">Copy</a>
-                                                    <a class="dropdown-item" href="javascript: void(0);">Save</a>
-                                                    <a class="dropdown-item" href="javascript: void(0);">Forward</a>
-                                                    <a class="dropdown-item" href="javascript: void(0);">Delete</a>
-                                                </div>
-                                            </div>
-                                            <div class="ctext-wrap">
-                                                <div class="conversation-name">{{data.name}}</div>
-                                                <p>
-                                                    {{data.message}}
-                                                </p>
-                                                <p class="chat-time mb-0"><i class="bx bx-time-five align-middle mr-1"></i>
-                                                    {{data.time}}</p>
-                                            </div>
-                                        </div>
-                                    </li>}
-                                </ngx-simplebar>
-                            </ul>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="p-3 chat-input-section">
-
-                    <form (ngSubmit)="messageSave()" [formGroup]="formData" class="row">
-                        <div class="col">
-                            <div class="position-relative">
-                                <input type="text" class="form-control rounded chat-input" placeholder="Enter Message..." formControlName="message" [ngClass]="{'is-invalid': chatSubmit && form.message.errors}">
-                                @if(chatSubmit && form.message.errors){
-                                <div class="invalid-feedback">
-                                    @if(form.message.errors.required){
-                                    <span>Message is required.</span>
-                                    }
-                                </div>
-                                }
-                                <div class="chat-input-links">
-                                    <ul class="list-inline mb-0">
-                                        <li class="list-inline-item"><a href="javascript: void(0);" placement="top" tooltip="Emoji"><i class="mdi mdi-emoticon-happy-outline"></i></a>
-                                        </li>
-                                        <li class="list-inline-item"><a href="javascript: void(0);" placement="top" tooltip="Images"><i class="mdi mdi-file-image-outline"></i></a></li>
-                                        <li class="list-inline-item"><a href="javascript: void(0);" placement="top" tooltip="Add Files"><i class="mdi mdi-file-document-outline"></i></a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <button type="submit" class="btn btn-primary chat-send w-md"><span class="d-none d-sm-inline-block me-2">Send</span> <i class="mdi mdi-send"></i></button>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="row">
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title mb-4 text-uppercase">Historique des commandes(Livres, annuler et reporter)</h4>
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="row mb-2">
-                                            <div class="col-sm-4">
-                                                <div class="search-box me-2 mb-2 d-inline-block">
-                                                    <div class="position-relative">
-                                                        <input type="text" class="form-control" autocomplete="off" id="searchTableList"
-                                                               placeholder="Rechercher..." [(ngModel)]="term" (ngModelChange)="searchOrder()">
-                                                        <i class="bx bx-search-alt search-icon"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-8 d-flex align-items-center justify-content-end gap-3">
-
-                                                <div class="col-sm-4">
-                                                    <select class="form-select">
-                                                        <option>Filtrer par..</option>
-                                                        <option>Livrer</option>
-                                                        <option>Reporter</option>
-                                                        <option>Annuler</option>
-                                                    </select>
-                                                </div>
-
-                                                <div class="text-sm-end refresh-btn">
-
-                                                    <button type="button"
-                                                            class="btn  btn-rounded mb-2 me-2"
-                                                            [ngClass]="{'btn-success': isSuccess, 'btn-dark': !isSuccess}"
-                                                            (click)="onButtonClick();refreshOderData()">
-                                                        <ng-container *ngIf="isSuccess">
-                                                            <i class="bx bx-loader bx-spin font-size-16 align-middle me-2"></i>
-                                                        </ng-container>
-                                                        <ng-container *ngIf="!isSuccess">
-                                                            <i class="bx bx-check-double font-size-16 align-middle me-2"></i>
-                                                        </ng-container>
-                                                        Rafraichir
-                                                    </button>
-
-                                                </div>
-
-                                            </div><!-- end col-->
-                                        </div>
-                                        <!-- Table data -->
-                                        <div class="table-responsive mb-0">
-                                            <table class="table align-middle table-nowrap dt-responsive nowrap w-100 table-check"
-                                                   id="order-list">
-                                                <thead class="table-light">
-                                                <tr>
-<!--                                                    <th style="width: 20px;">-->
-<!--                                                        <div class="form-check font-size-16 align-middle">-->
-<!--                                                            <input class="form-check-input" type="checkbox" id="transactionCheck01"-->
-<!--                                                                   [(ngModel)]="masterSelected" (change)="checkUncheckAll($event)">-->
-<!--                                                            <label class="form-check-label" for="transactionCheck01"></label>-->
-<!--                                                        </div>-->
-<!--                                                    </th>-->
-                                                    <th class="align-middle">ID Commande</th>
-                                                    <th class="align-middle">Nom de la boutique</th>
-                                                    <th class="align-middle">Date de la commande</th>
-                                                    <th class="align-middle">Processus de commande</th>
-                                                    <th class="align-middle">Total de la commande</th>
-                                                    <th class="align-middle">Livreurs</th>
-                                                    <th class="align-middle">Statut de paiement</th>
-                                                    <th class="align-middle">Détails de la commande</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-
-                                                    @for (data of orderlist;track $index) {
-                                                        <tr id="o_{{data.id}}">
-<!--                                                            <td>-->
-<!--                                                                <div class="form-check font-size-16">-->
-<!--                                                                    <input class="form-check-input" type="checkbox"-->
-<!--                                                                           id="transactionCheck{{data.index}}"-->
-<!--                                                                           value="{{data.id}}" [(ngModel)]="data.state">-->
-<!--                                                                    <label class="form-check-label"-->
-<!--                                                                           for="transactionCheck{{data.index}}"></label>-->
-<!--                                                                </div>-->
-<!--                                                            </td>-->
-                                                            <td>
-                                                                <a href="javascript: void(0);"
-                                                                   class="text-body fw-bold">{{ data.order_id }}</a>
-                                                            </td>
-                                                            <td><a [href]="data.store_url" target="_blank">{{ data.store_name }}</a></td>
-                                                            <!--                  <td>{{data.name }}</td>-->
-                                                            <td>
-                                                                {{
-                                                                    beginDate(data.created_at).day + '-' +
-                                                                    beginDate(data.created_at).monthNumber + '-' +
-                                                                    beginDate(data.created_at).year + ' à ' +
-                                                                    beginDate(data.created_at).time
-
-                                                                }}
-
-
-                                                            </td>
-                                                            <td>
-                   <span class="badge badge-pill badge-soft-success font-size-11"
-                         [ngClass]="{
-                              'badge-soft-danger': data.order_status === 'failed' || data.order_status === 'canceled',
-                              'badge-soft-warning': data.order_status === 'pending-payment' || data.order_status === 'on-hold' || data.order_status === 'refunded' || data.order_status === 'draft',
-                              'badge-soft-success': data.order_status === 'processing' || data.order_status === 'completed'
-                          }">
-                        {{ data.order_status }}
-                    </span>
-
-
-                                                            </td>
-                                                            <td>{{ data.total }} {{ data.currency }}</td>
-                                                            <td>
-                                                                @if (data.livreur.length>0){
-                                                                    @for (deliveryOrder of data.livreur;track $index ){
-                                                                        <span class="badge badge-pill badge-soft-success font-size-11 badge-soft-success text-capitalize">{{deliveryOrder.surname}}</span> <br>
-                                                                    }
-                                                                }@else{
-                                                                    <span class="badge badge-pill badge-soft-success font-size-11 badge-soft-warning text-capitalize">Pas livreur</span>
-                                                                }
-
-                                                            </td>
-
-                                                            <td>
-                    <span class="badge badge-pill badge-soft-success font-size-11"
-                          [ngClass]=" {
-                                   'badge-soft-danger': data.payment_status === 'Chargeback',
-                                  'badge-soft-warning': data.payment_status === 'Refund',
-                                  'badge-soft-success': data.payment_status === 'Paid'
-
-                                   }">
-                      {{ data.payment_status }}
-                    </span>
-                                                            </td>
-
-                                                            <!--              <td>-->
-                                                            <!--                <i :class="{{data.payment_icon}} me-1"></i>-->
-                                                            <!--                    {{data.payment_method}}-->
-                                                            <!--              </td>-->
-                                                            <td>
-                                                                <!-- Button trigger modal -->
-                                                                <button (click)="showDetailsOrder(data.id); openViewModal(ViewContent)"
-                                                                        type="button" class="btn btn-primary btn-sm btn-rounded">
-                                                                    Voir la commande
-                                                                </button>
-                                                            </td>
-                                                            <!--                  <td>-->
-                                                            <!--                    <div class="d-flex align-item-center justify-content-center">-->
-                                                            <!--                      <a href="javascript:void(0);" class=" text-success d-flex align-item-center justify-content-center w-100" (click)="editModal($index)"><i class="fas fa-handshake font-size-18"></i></a>-->
-                                                            <!--&lt;!&ndash;                      <a href="javascript:void(0);" class="text-danger" (click)="confirm(data.id)"><i class="mdi mdi-delete font-size-18"></i></a>&ndash;&gt;-->
-                                                            <!--                    </div>-->
-                                                            <!--                  </td>-->
-                                                        </tr>
-                                                    }
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <!-- end table -->
-                                        <ul class="pagination pagination-rounded justify-content-end mb-2">
-                                            <pagination [totalItems]="orderlist?.length" [itemsPerPage]="8"
-                                                        (pagechanged)="pagechanged($event)"></pagination>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title mb-4 text-uppercase">Performance des Livreurs</h4>
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="row mb-2">
-                                            <div class="col-sm-4">
-                                                <div class="search-box me-2 mb-2 d-inline-block">
-                                                    <div class="position-relative">
-                                                        <input type="text" class="form-control" autocomplete="off" id="searchTableList"
-                                                               placeholder="Rechercher..." [(ngModel)]="term" (ngModelChange)="searchOrder()">
-                                                        <i class="bx bx-search-alt search-icon"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-8 d-flex align-items-center justify-content-end gap-3">
-
-                                                <div class="col-sm-4">
-                                                    <select class="form-select">
-                                                        <option>Filtrer par..</option>
-                                                        <option>Croissant</option>
-                                                        <option>Decroissant</option>
-                                                    </select>
-                                                </div>
-
-                                                <div class="text-sm-end refresh-btn">
-
-                                                    <button type="button"
-                                                            class="btn  btn-rounded mb-2 me-2"
-                                                            [ngClass]="{'btn-success': isSuccess, 'btn-dark': !isSuccess}"
-                                                            (click)="onButtonClick();refreshOderData()">
-                                                        <ng-container *ngIf="isSuccess">
-                                                            <i class="bx bx-loader bx-spin font-size-16 align-middle me-2"></i>
-                                                        </ng-container>
-                                                        <ng-container *ngIf="!isSuccess">
-                                                            <i class="bx bx-check-double font-size-16 align-middle me-2"></i>
-                                                        </ng-container>
-                                                        Rafraichir
-                                                    </button>
-
-                                                </div>
-
-                                            </div><!-- end col-->
-                                        </div>
-                                        <!-- Table data -->
-                                        <div class="table-responsive mb-0">
-                                            <table class="table align-middle table-nowrap dt-responsive nowrap w-100 table-check"
-                                                   id="order-list">
-                                                <thead class="table-light">
-                                                <tr>
-                                                    <th class="align-middle">ID livreur</th>
-                                                    <th class="align-middle">Nom Livreur</th>
-                                                    <th class="align-middle">Prenom</th>
-                                                    <th class="align-middle">Email </th>
-                                                    <th class="align-middle">Numeros </th>
-                                                    <th class="align-middle">Date inscris </th>
-                                                    <th class="align-middle">Note livreurs</th>
-                                                    <th class="align-middle">Disponibiliter</th>
-                                                    <th class="align-middle">Nbres de commande effectuer</th>
-                                                    <th class="align-middle">Détails sur le livreur</th>
-                                                </tr>
-                                                </thead>
-<!--                                                <tbody>-->
-
-<!--                                                    @for (data of orderlist;track $index) {-->
-<!--                                                        <tr id="o_{{data.id}}">-->
-<!--                                                            &lt;!&ndash;                                                            <td>&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;                                                                <div class="form-check font-size-16">&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;                                                                    <input class="form-check-input" type="checkbox"&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;                                                                           id="transactionCheck{{data.index}}"&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;                                                                           value="{{data.id}}" [(ngModel)]="data.state">&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;                                                                    <label class="form-check-label"&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;                                                                           for="transactionCheck{{data.index}}"></label>&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;                                                                </div>&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;                                                            </td>&ndash;&gt;-->
-<!--                                                            <td>-->
-<!--                                                                <a href="javascript: void(0);"-->
-<!--                                                                   class="text-body fw-bold">{{ data.order_id }}</a>-->
-<!--                                                            </td>-->
-<!--                                                            <td><a [href]="data.store_url" target="_blank">{{ data.store_name }}</a></td>-->
-<!--                                                            &lt;!&ndash;                  <td>{{data.name }}</td>&ndash;&gt;-->
-<!--                                                            <td>-->
-<!--                                                                {{-->
-<!--                                                                    beginDate(data.created_at).day + '-' +-->
-<!--                                                                    beginDate(data.created_at).monthNumber + '-' +-->
-<!--                                                                    beginDate(data.created_at).year + ' à ' +-->
-<!--                                                                    beginDate(data.created_at).time-->
-
-<!--                                                                }}-->
-
-
-<!--                                                            </td>-->
-<!--                                                            <td>-->
-<!--                   <span class="badge badge-pill badge-soft-success font-size-11"-->
-<!--                         [ngClass]="{-->
-<!--                              'badge-soft-danger': data.order_status === 'failed' || data.order_status === 'canceled',-->
-<!--                              'badge-soft-warning': data.order_status === 'pending-payment' || data.order_status === 'on-hold' || data.order_status === 'refunded' || data.order_status === 'draft',-->
-<!--                              'badge-soft-success': data.order_status === 'processing' || data.order_status === 'completed'-->
-<!--                          }">-->
-<!--                        {{ data.order_status }}-->
-<!--                    </span>-->
-
-
-<!--                                                            </td>-->
-<!--                                                            <td>{{ data.total }} {{ data.currency }}</td>-->
-<!--                                                            <td>-->
-<!--                                                                @if (data.livreur.length>0){-->
-<!--                                                                    @for (deliveryOrder of data.livreur;track $index ){-->
-<!--                                                                        <span class="badge badge-pill badge-soft-success font-size-11 badge-soft-success text-capitalize">{{deliveryOrder.surname}}</span> <br>-->
-<!--                                                                    }-->
-<!--                                                                }@else{-->
-<!--                                                                    <span class="badge badge-pill badge-soft-success font-size-11 badge-soft-warning text-capitalize">Pas livreur</span>-->
-<!--                                                                }-->
-
-<!--                                                            </td>-->
-
-<!--                                                            <td>-->
-<!--                    <span class="badge badge-pill badge-soft-success font-size-11"-->
-<!--                          [ngClass]=" {-->
-<!--                                   'badge-soft-danger': data.payment_status === 'Chargeback',-->
-<!--                                  'badge-soft-warning': data.payment_status === 'Refund',-->
-<!--                                  'badge-soft-success': data.payment_status === 'Paid'-->
-
-<!--                                   }">-->
-<!--                      {{ data.payment_status }}-->
-<!--                    </span>-->
-<!--                                                            </td>-->
-
-<!--                                                            &lt;!&ndash;              <td>&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;                <i :class="{{data.payment_icon}} me-1"></i>&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;                    {{data.payment_method}}&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;              </td>&ndash;&gt;-->
-<!--                                                            <td>-->
-<!--                                                                &lt;!&ndash; Button trigger modal &ndash;&gt;-->
-<!--                                                                <button (click)="showDetailsOrder(data.id); openViewModal(ViewContent)"-->
-<!--                                                                        type="button" class="btn btn-primary btn-sm btn-rounded">-->
-<!--                                                                    Voir la commande-->
-<!--                                                                </button>-->
-<!--                                                            </td>-->
-<!--                                                            &lt;!&ndash;                  <td>&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;                    <div class="d-flex align-item-center justify-content-center">&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;                      <a href="javascript:void(0);" class=" text-success d-flex align-item-center justify-content-center w-100" (click)="editModal($index)"><i class="fas fa-handshake font-size-18"></i></a>&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;&lt;!&ndash;                      <a href="javascript:void(0);" class="text-danger" (click)="confirm(data.id)"><i class="mdi mdi-delete font-size-18"></i></a>&ndash;&gt;&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;                    </div>&ndash;&gt;-->
-<!--                                                            &lt;!&ndash;                  </td>&ndash;&gt;-->
-<!--                                                        </tr>-->
-<!--                                                    }-->
-<!--                                                </tbody>-->
-                                            </table>
-                                        </div>
-                                        <!-- end table -->
-                                        <ul class="pagination pagination-rounded justify-content-end mb-2">
-                                            <pagination [totalItems]="orderlist?.length" [itemsPerPage]="8"
-                                                        (pagechanged)="pagechanged($event)"></pagination>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title mb-4">Latest Transaction</h4>
+                        <h4 class="card-title mb-4">Dernière Transaction</h4>
                         <app-transaction [transactions]="transactions"></app-transaction>
                         <!-- end table -->
                     </div>

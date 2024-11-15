@@ -7,7 +7,7 @@
     <div class="col-lg-12">
       <div class="card">
         <div class="card-body">
-          <div class="row">
+          <div class="row" *ngIf="productDetail">
             <div class="col-xl-7">
               <div class="product-detai-imgs">
                 <div class="row">
@@ -32,7 +32,10 @@
                     </ngx-slick-carousel>
                     <div class="text-center d-flex align-items-center gap-2 ">
 
-                      <button type="button"
+                      <button
+                              (click)="removeProductByIf()"
+
+                              type="button"
                               class=" btn btn-danger waves-effect mt-2 waves-light">
                         <i class="bx bx bx-trash me-2"></i>
                         Supprimer le produit
@@ -51,54 +54,43 @@
 
             <div class="col-xl-5">
               <div class="mt-4 mt-xl-3">
-                <a href="javascript: void(0);" class="text-primary text-capitalize">{{ categoryName }}</a>
+
+                <a href="javascript: void(0);" class="text-primary text-capitalize"
+                   *ngFor="let items of productDetail.categories">
+                    {{ items.name  }}
+                </a>
                 <h4 class="mt-1 mb-3 text-capitalize">{{ productDetail?.name }}</h4>
 
                 <p class="text-muted float-left me-3">
-                  <span *ngFor="let star of [1, 2, 3, 4, 5]; let i = index"
-                        class="bx bx-star"
-                        [ngClass]="{'text-warning': i < productDetail?.product_note}">
-                  </span>
+<!--                  <span *ngFor="let star of [1, 2, 3, 4, 5]; let i = index"-->
+<!--                        class="bx bx-star"-->
+<!--                        [ngClass]="{'text-warning': i < productDetail?.product_note}">-->
+<!--                  </span>-->
                 </p>
 
                 <p class="text-muted mb-4">( 4,1 Customers Review )</p>
-                <h6 class="text-success text-capitalize" *ngIf="productDetail?.price">{{ reusableFunction.calculateDiscountPercentage(productDetail?.price, productDetail?.promotional_price) }} % de réduction</h6>
+                <h6 class="text-success text-capitalize" *ngIf="productDetail?.regular_price>0">{{ reusableFunction.calculateDiscountPercentage(productDetail?.regular_price, productDetail?.sale_price) }} % de réduction</h6>
                 <h5 class="mb-4">Prix :
-                  <span class="text-muted me-2" *ngIf="productDetail?.promotional_price">
-                    <del>€{{ productDetail?.promotional_price }} EUR</del> -
+                  <span class="text-muted me-2" *ngIf="productDetail?.sale_price">
+                    <del>{{ productDetail?.sale_price }} XOF</del> -
                   </span>
-                  <b>€{{ productDetail?.price }} EUR </b>
+                  <b>{{ productDetail?.regular_price }} XOF </b>
                 </h5>
 
-                <p class="mb-4">
-                  <span  class="me-4">
-                    Quantité :
-                  <b>{{ productDetail?.quantity }} </b>
-                  </span>
 
-                  <span class="me-4 " *ngIf="productDetail?.stock_state">
-                    Stock :
-                    <b class="text-capitalize">{{ productDetail?.stock_state }} </b>
-                  </span>
+<!--                <p class="mb-4" *ngIf="productDetail?.productOptions">-->
+<!--                  <span  class="me-4">-->
+<!--                    Options :-->
+<!--                  <b class="text-uppercase">{{ reusableFunction.formatValuesString(productDetail.productOptions) }} </b>-->
+<!--                  </span>-->
 
-                  <span *ngIf="productDetail?.product_state" class="me-4">Etat du  produit :
-                    <b class="text-capitalize">{{ productDetail?.product_state }} </b>
-                  </span>
-                </p>
-
-                <p class="mb-4" *ngIf="productDetail?.productOptions">
-                  <span  class="me-4">
-                    Options :
-                  <b class="text-uppercase">{{ reusableFunction.formatValuesString(productDetail.productOptions) }} </b>
-                  </span>
-
-                </p>
+<!--                </p>-->
 
 
 
 
 
-                <p class="text-muted mb-4 text-capitalize" [innerHTML]="productDetail?.features ">
+                <p class="text-muted mb-4 text-capitalize" [innerHTML]="productDetail?.summary ">
 
                 </p>
 
@@ -124,41 +116,6 @@
             </div>
           </div>
           <!-- end row -->
-
-          <div class="mt-5">
-            <h5 class="mb-3">Specifications :</h5>
-
-            <div class="table-responsive">
-              <table class="table mb-0 table-bordered">
-                <tbody>
-                <tr >
-                  <th scope="row" style="width: 400px;">Taille (en mètre)</th>
-                  <td class="text-center text-capitalize">{{ productDetail?.size}}</td>
-                </tr>
-                <tr >
-                  <th scope="row" style="width: 400px;">Dimension (LxWxH)</th>
-                  <td class="text-center text-capitalize">{{ productDetail?.dimensions}}</td>
-                </tr>
-                <tr >
-                  <th scope="row" style="width: 400px;">Poids (en Kg)</th>
-                  <td class="text-center text-capitalize">{{ productDetail?.weight}}</td>
-                </tr>
-
-                <tr >
-                  <th scope="row" style="width: 400px;">Nom du fabricant</th>
-                  <td  class="text-center text-capitalize">{{ productDetail?.manufacture_name}}</td>
-                </tr>
-
-                <tr >
-                  <th scope="row" style="width: 400px;">Marque du fabricant</th>
-                  <td class="text-center text-capitalize">{{ productDetail?.manufacture_brand}}</td>
-                </tr>
-
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <!-- end Specifications -->
         </div>
       </div>
     </div>
@@ -174,186 +131,159 @@
       <button type="button" class="btn-close" aria-hidden="true" (click)="modalRef?.hide()"></button>
     </div>
     <div class="modal-body">
-      <form [formGroup]="productForm" (ngSubmit)="validSubmit()">
-        <div class="row">
-
-          <!-- Première colonne -->
-          <div class="col-sm-6">
-            <!-- Nom du produit -->
-            <div class="mb-3">
-              <label for="productname">Nom du produit</label>
-              <input id="productname" name="productname" (keypress)="validatePositiveNumber($event)" type="text" placeholder="Nom du produit" class="form-control" formControlName="name" [ngClass]="{'is-invalid': submit && form.name.errors}" required>
-              <div *ngIf="submit && form.name.errors" class="invalid-feedback">
-                <span *ngIf="form.name.errors.required">Le nom du produit est requis.</span>
-              </div>
-            </div>
-
-            <!-- Nom ou marque du fabricant -->
-            <div class="mb-3">
-              <label for="manufacturername">Nom ou marque du fabricant</label>
-              <input id="manufacturername" name="manufacturername" (keypress)="validatePositiveNumber($event)" type="text" placeholder="Nom ou marque du fabricant" class="form-control" formControlName="manufacture_name" [ngClass]="{'is-invalid': submit && form.manufacture_name.errors}">
-              <div *ngIf="submit && form.manufacture_name.errors" class="invalid-feedback">
-                <span *ngIf="form.manufacture_name.errors.required">Le nom du fabricant est requis.</span>
-              </div>
-            </div>
-
-            <!-- Catégories -->
-            <div class="mb-3">
-              <label class="control-label">Catégories</label>
-              <ng-select formControlName="category" placeholder="Choissez une catégorie">
-                <ng-option *ngFor="let item of categoriesUpdate; let i = index" [id]="'cat_'+i" [value]="item.id">
-                  {{ item.name }}
-                </ng-option>
-              </ng-select>
-
-
-            </div>
-
-            <!-- Prix normal du produit -->
-            <div class="mb-3">
-              <label for="prixnormal">Prix normal du produit (En Euros)</label>
-              <input id="prixnormal" name="prixnormal" type="number" (keypress)="validatePositiveNumber($event)" min="0" placeholder="Prix normal du produit" class="form-control" formControlName="price" [ngClass]="{'is-invalid': submit && form.price.errors}">
-              <div *ngIf="submit && form.price.errors" class="invalid-feedback">
-                <span *ngIf="form.price.errors.required">Le prix est requis.</span>
-              </div>
-            </div>
-
-            <!-- Prix promotionnel du produit -->
-            <div class="mb-3">
-              <label for="prixpromo">Prix promotionnel du produit</label>
-              <input id="prixpromo" name="prixpromo" type="number" (keypress)="validatePositiveNumber($event)" min="0" placeholder="Prix promotionnel du produit" class="form-control" formControlName="promotional_price" [ngClass]="{'is-invalid': submit && form.promotional_price.errors}">
-              <div *ngIf="submit && form.promotional_price.errors" class="invalid-feedback">
-                <span *ngIf="form.promotional_price.errors.required">Le prix promotionnel est requis.</span>
-              </div>
-            </div>
-
-            <!-- Quantité disponible -->
-            <div class="mb-3">
-              <label for="quantity">Quantité disponible</label>
-              <input id="quantity" name="quantity" type="number" (keypress)="validatePositiveNumber($event)" min="0" placeholder="Quantité disponible" class="form-control" formControlName="quantity" [ngClass]="{'is-invalid': submit && form.quantity.errors}">
-            </div>
-
-            <div class="mb-3">
-              <label for="productOptions">Options du produit (Appuyer sur la touche entré apres chaque saisie)</label>
-              <tag-input
-                      formControlName="productOptions"
-                      [secondaryPlaceholder]="'Options de votre produit'"
-                      [ngClass]="{'is-invalid': submit && form.productOptions.errors}">
-              </tag-input>
-            </div>
-
-          </div>
-
-          <!-- Deuxième colonne -->
-          <div class="col-sm-6">
-            <!-- État du produit -->
-            <div class="mb-3">
-              <label for="product_state">État du produit</label>
-              <ng-select formControlName="product_state" [items]="product_states" placeholder="Quelle est l'état du produit"></ng-select>
-            </div>
-
-            <!-- État du stock du produit -->
-            <div class="mb-3">
-              <label for="stock_state">État du stock</label>
-              <ng-select formControlName="stock_state" [items]="stock_states" placeholder="Quelle est le stock du produit"></ng-select>
-            </div>
-
-            <!-- Poids du produit -->
-            <div class="mb-3">
-              <label for="weight">Poids du produit (kg)</label>
-              <input id="weight" name="weight" type="number"  (keypress)="validatePositiveNumber($event)" min="0" placeholder="Poids du produit" class="form-control" formControlName="weight" [ngClass]="{'is-invalid': submit && form.weight.errors}">
-            </div>
-
-            <!-- Taille du produit -->
-            <div class="mb-3">
-              <label for="size">Taille du produit (en mètre)</label>
-              <input id="size" name="size" (keypress)="validatePositiveNumber($event)" type="text" placeholder="Taille du produit" class="form-control" formControlName="size" [ngClass]="{'is-invalid': submit && form.size.errors}">
-            </div>
-
-            <!-- Dimensions du produit -->
-            <div class="mb-3">
-              <label for="dimensions">Dimensions du produit (LxWxH)</label>
-              <input id="dimensions" (keypress)="validatePositiveNumber($event)" name="dimensions" type="text" placeholder="Dimensions du produit" class="form-control" formControlName="dimensions" [ngClass]="{'is-invalid': submit && form.dimensions.errors}">
-            </div>
-
-            <!-- Description du produit -->
-            <div class="NgxEditor__Wrapper">
-              <ngx-editor-menu [editor]="editor"  [toolbar]="toolbar"> </ngx-editor-menu>
-              <ngx-editor [editor]="editor" placeholder="Décriver votre produits" formControlName="features"> </ngx-editor>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dropzones pour les images -->
-        <div>
-          <!-- Dropzone pour l'image principale -->
-          <div class="mb-3">
-            <h4 class="card-title mb-3">Image principale du produit</h4>
-            <dropzone class="dropzone"
-                      [config]="mainImageDropzoneConfig"
-                      [message]="'Déposez le fichier ici ou cliquez pour télécharger.'"
-                      (addedFile)="onMainImageUploadSuccess($event)"
-            >
-
-            </dropzone>
-
-            <!-- Affichage de l'image principale -->
-
-            <div *ngIf="mainImagePreview">
-              <h5 class="mt-3">Aperçu de l'image principale</h5>
-              <div class="avatar-sm bg-light rounded">
-                <img class="img-fluid rounded d-block" [src]="mainImagePreview" alt="Image principale" />
-              </div>
-            </div>
-          </div>
-
-          <br>
-          <br>
-          <br>
-          <!-- Dropzone pour les images variantes -->
-          <div>
-            <h4 class="card-title mb-3">Images variantes du produit</h4>
-            <dropzone class="dropzone"
-                      [config]="variantImagesDropzoneConfig"
-                      [message]="'Déposez les fichiers ici ou cliquez pour télécharger.'"
-                      (addedFile)="onVariantImageUploadSuccess($event)">
-            </dropzone>
-
-            <!-- Affichage des images variantes -->
-            <div *ngIf="variantImagePreviews.length > 0">
-              <h5 class="mt-3">Aperçu des images variantes</h5>
-              <ul class="list-unstyled mb-0" id="dropzone-preview">
-                <li *ngFor="let image of variantImagePreviews; let i = index" class="mt-2" id="dropzone-preview-list">
-                  <div class="border rounded">
-                    <div class="d-flex p-2">
-                      <div class="flex-shrink-0 me-3">
-                        <div class="avatar-sm bg-light rounded">
-                          <img class="img-fluid rounded d-block" [src]="image" alt="Image variante {{i + 1}}" />
-                        </div>
-                      </div>
-                      <div class="flex-grow-1">
-                        <div class="pt-1">
-                          <h5 class="fs-md mb-1">Image variante {{i + 1}}</h5>
-                        </div>
-                      </div>
-                      <div class="flex-shrink-0 ms-3">
-                        <button (click)="removeVariantImage(i)" class="btn btn-sm btn-danger">Supprimer</button>
-                      </div>
+        <form [formGroup]="productForm" (ngSubmit)="validSubmit()"  enctype="multipart/form-data">
+            <div class="row">
+                <!-- Colonne 1 -->
+                <div class="col-sm-6">
+                    <!-- Nom du produit -->
+                    <div class="mb-3">
+                        <label for="name">Nom du produit</label>
+                        <input id="name" name="name" type="text" placeholder="Nom du produit" class="form-control" formControlName="name" required>
                     </div>
-                  </div>
-                </li>
-              </ul>
+
+                    <!-- Prix régulier -->
+                    <div class="mb-3">
+                        <label for="regular_price">Prix régulier (en euros)</label>
+                        <input id="regular_price" name="regular_price" type="number" min="0" placeholder="Prix régulier" class="form-control" formControlName="regular_price">
+                    </div>
+
+                    <!-- Prix promotionnel -->
+                    <div class="mb-3">
+                        <label for="sale_price">Prix promotionnel (en euros)</label>
+                        <input id="sale_price" name="sale_price" type="number" min="0" placeholder="Prix promotionnel" class="form-control" formControlName="sale_price">
+                    </div>
+
+                    <!-- ISBN -->
+                    <div class="mb-3">
+                        <label for="isbn">ISBN</label>
+                        <input id="isbn" name="isbn" type="text" placeholder="ISBN" class="form-control" formControlName="isbn">
+                    </div>
+
+                    <!-- Nombre de pages -->
+                    <div class="mb-3">
+                        <label for="page_num">Nombre de pages</label>
+                        <input id="page_num" name="page_num" type="number" min="1" placeholder="Nombre de pages" class="form-control" formControlName="page_num">
+                    </div>
+
+                    <!-- Année de publication -->
+                    <div class="mb-3">
+                        <label for="published_year">Année de publication</label>
+                        <input id="published_year" name="published_year" type="number" min="0" placeholder="Année de publication" class="form-control" formControlName="published_year">
+                    </div>
+                </div>
+
+                <!-- Colonne 2 -->
+                <div class="col-sm-6">
+                    <!-- Auteur -->
+                    <div class="mb-3">
+                        <label for="author_name">Auteur</label>
+                        <input id="author_name" name="author_name" type="text" placeholder="Auteur" class="form-control"
+                               formControlName="author_name">
+                    </div>
+
+                    <!-- Âge -->
+                    <div class="mb-3">
+                        <label for="age">Âge recommandé</label>
+                        <input id="age" name="age" type="number" min="0" placeholder="Âge recommandé" class="form-control"
+                               formControlName="age">
+                    </div>
+
+                    <!-- Catégories -->
+                    <div class="mb-3">
+                        <label class="control-label">Catégories</label>
+                        <!--        [ngClass]="{'is-invalid': submit && form.categories.errors}"          <ng-select formControlName="category" [items]="categories" placeholder="Choissez une catégorie"></ng-select>-->
+                        <ng-select
+                                formControlName="categories"
+                                placeholder="Choisissez une catégorie"
+                                [multiple]="true">
+
+                            <!-- Loop over productDetail.categories -->
+                            <ng-option
+                                    *ngFor="let item of productDetail.categories; let i = index"
+                                    [id]="'cat_' + i"
+                                    [value]="item.id">
+                                {{ item.name }}
+                            </ng-option>
+
+                            <!-- Loop over currentUserCategories -->
+                            <ng-option
+                                    *ngFor="let itemDefaultCategories of currentUserCategories; let i = index"
+                                    [id]="'cat_user_' + i"
+                                    [value]="itemDefaultCategories.id">
+                                {{ itemDefaultCategories.property1 }}
+                            </ng-option>
+                        </ng-select>
+
+                    </div>
+
+                    <!-- Genre -->
+                    <div class="mb-3">
+                        <label class="control-label">Genre</label>
+                        <!--        [ngClass]="{'is-invalid': submit && form.categories.errors}"          <ng-select formControlName="category" [items]="categories" placeholder="Choissez une catégorie"></ng-select>-->
+<!--                        <ng-select formControlName="genre" placeholder="Choissez le genre du livre">-->
+<!--                            <ng-option *ngFor="let item of currentUserGenre; let i = index" [id]="'genr_'+i" [value]="item.id">-->
+<!--                                {{ item.property1 }}-->
+<!--                            </ng-option>-->
+<!--                        </ng-select>-->
+                    </div>
+
+
+                    <!-- Téléchargements -->
+                    <div class="mb-3">
+                        <label for="downloads">Téléchargements</label>
+                        <input id="downloads" (change)="onFilePdfChange($event)" name="downloads" type="file" accept="application/pdf" placeholder="Lien de téléchargement" class="form-control" formControlName="downloads">
+                    </div>
+
+                    <div class="mb-3">
+                        <label >Description du Livre</label>
+
+
+                        <div class="NgxEditor__Wrapper">
+                            <ngx-editor-menu [editor]="editor"  [toolbar]="toolbar"> </ngx-editor-menu>
+                            <ngx-editor [editor]="editor" placeholder="Resume ou description de votre livre" formControlName="summary"> </ngx-editor>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
 
+            <!-- Dropzone pour les images -->
+            <div>
+                <!-- Image principale (front_cover) -->
+                <div class="mb-3">
+                    <h4 class="card-title mb-3">Image principale du produit</h4>
+                    <dropzone class="dropzone" [config]="mainImageDropzoneConfig" [message]="'Déposez limage ici ou cliquez pour télécharger.'" (addedFile)="onMainImageUploadSuccess($event)">
+                    </dropzone>
 
+                    <div *ngIf="mainImagePreview">
+                        <h5 class="mt-3">Aperçu de l'image principale</h5>
+                        <img class="img-fluid rounded d-block" [src]="mainImagePreview" alt="Image principale">
+                    </div>
+                </div>
 
+                <!-- Images secondaires (back_cover) -->
+                <div>
+                    <h4 class="card-title mb-3">Images secondaires du produit</h4>
+                    <dropzone class="dropzone" [config]="variantImagesDropzoneConfig" [message]="'Déposez les images ici ou cliquez pour télécharger.'" (addedFile)="onVariantImageUploadSuccess($event)">
+                    </dropzone>
 
-        <div class="d-flex flex-wrap gap-2 mt-2">
-          <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
-          <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Fermer</button>
-        </div>
-      </form>
+                    <div *ngIf="variantImagePreviews">
+                        <h5 class="mt-3">Aperçu des images secondaires</h5>
+                        <div  class="mt-2">
+                            <!--                                <img class="img-fluid rounded d-block" [src]="image" alt="Image secondaire {{i + 1}}">-->
+                            <img class="img-fluid rounded d-block" [src]="variantImagePreviews" alt="Image secondaire">
+
+                            <button (click)="removeVariantImage(0)" class="btn btn-sm btn-danger mt-2">Supprimer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Boutons de soumission -->
+            <div class="d-flex flex-wrap gap-2 mt-2">
+                <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                <button type="button" class="btn btn-secondary">Annuler</button>
+            </div>
+        </form>
+
     </div>
 </ng-template>

@@ -5,15 +5,17 @@ import { revenueBarChart } from './data';
 import { ChartType } from './profile.model';
 import {UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators} from "@angular/forms";
 import {environment} from "../../../../environments/environment.prod";
-import {User, UserRegister} from "../../../store/Authentication/auth.models";
+import {User, UserData} from "../../../store/Authentication/auth.models";
 import {Register} from "../../../store/Authentication/authentication.actions";
 import {ToastrService} from "ngx-toastr";
 import {Store} from "@ngrx/store";
 import {ReusableFunctionService} from "../../../core/services/reusable-function.service";
 import {CrudService} from "../../../core/services/crud.service";
-import {TokenStorageService} from "../../../core/services/token-storage.service";
 import {Router} from "@angular/router";
 import {ConnectionTimerService} from "../../../core/services/connection-timer.service";
+import {take} from "rxjs";
+import {HttpHeaders} from "@angular/common/http";
+import {TokenStorageService} from "../../../core/services/token-storage.service";
 
 @Component({
   selector: 'app-profile',
@@ -62,15 +64,23 @@ export class ProfileComponent implements OnInit {
   connectionTime: Date | null = null;
   connectionDuration: Date | null = null;
 
+  //Headers
+  userConnectedHeader!: HttpHeaders
+  
+  // Profil
+  profile_picture: File[] = [];
+  
   constructor(
       private formBuilder: UntypedFormBuilder,
       public toastrService: ToastrService,
       public store: Store,
       public reusableFuction: ReusableFunctionService,
       private crudService: CrudService,
-      private tokenStorageService: TokenStorageService,
+      private tokenStorage: TokenStorageService,
       private route: Router,
       public connectionTimerService: ConnectionTimerService,
+      public toastr:ToastrService,
+
   ) { }
 
   ngOnInit() {
@@ -85,40 +95,47 @@ export class ProfileComponent implements OnInit {
       // Calcul de la durée de connexion à chaque appel
       this.connectionDuration = this.connectionTimerService.getConnectionDuration();
 
-    //form
     this.signupForm = this.formBuilder.group({
-      username: [''],
-      first_name: [''],
-      last_name: [''],
-      email: [''],
-      adresse: [''],
-      password: ['' ],
-      about_us: ['' ],
-      profile_picture: [null],
+      username: ['', Validators.required],
+      firstname: ['', Validators.required],
+      lastname: ['', Validators.required],
+      email: ['', [Validators.required]],
+       about: [''],
+      country: ['', Validators.required],
     });
 
+    this.userConnectedHeader = new HttpHeaders({
+      'Authorization': `Token ${this.tokenStorage.getRefreshToken()}`
+    })
 
-    this.crudService.fetchData(environment.api_url+'users/')
-        .subscribe((userItems: UserRegister[])=>{
-          userItems.forEach(items=>{
-            this.userArrayUsername.push(items.username)
-            this.userArrayEmail.push(items.email)
-          })
-          this.usersEmailUsername = [...this.userArrayEmail, ...this.userArrayUsername]
+
+
+
+    this.crudService.fetchDataOne(environment.api_url+'users/')
+        .subscribe((userItems: User)=>{
+          const userItemsData:any = userItems.data
+
+          console.log(userItems)
+         if (userItems){
+           userItemsData.map(items=>{
+             this.userArrayUsername.push(items.username)
+             this.userArrayEmail.push(items.email)
+           })
+           this.usersEmailUsername = [...this.userArrayEmail, ...this.userArrayUsername]
+         }
         })
 
-    if (this.tokenStorageService.getUser() && this.tokenStorageService.getUser().email.length > 2){
-      this.currentUser = this.tokenStorageService.getUser()
-
-      console.log(this.currentUser)
+    if (this.tokenStorage.getUser() && this.tokenStorage.getUser().data?.email.length > 2){
+      this.currentUser = this.tokenStorage.getUser();
       if (this.currentUser) {
+        console.log(this.currentUser)
         this.signupForm.patchValue({
-          username: this.currentUser.username,
-          first_name: this.currentUser.first_name,
-          last_name: this.currentUser.last_name,
-          email: this.currentUser.email,
-          adresse: this.currentUser.adresse,
-          about_us: this.currentUser.about_us,
+          username: this.currentUser?.data.username,
+          firstname: this.currentUser?.data.firstname,
+          lastname: this.currentUser?.data.lastname,
+          email: this.currentUser?.data.email,
+          about: this.currentUser?.data.about,
+          country: this.currentUser?.data.country,
         });
       }
     }
@@ -127,9 +144,7 @@ export class ProfileComponent implements OnInit {
     this._fetchData();
   }
 
-  /**
-   * Fetches the data
-   */
+
   private _fetchData() {
     this.revenueBarChart = revenueBarChart;
     // this.statData = statData;
@@ -166,33 +181,55 @@ export class ProfileComponent implements OnInit {
   /**
    * On submit form
    */
+  
+  profileImageUploadSuccess(event: any) {
+    const file = event.target?.files?.[0]; // Récupère le fichier depuis l'événement
+
+    if (file instanceof Blob && file.type.match(/^image\/(jpeg|png)$/)) { // Vérifie le type du fichier
+      this.profile_picture = [file as File]; // Remplace l'image de profil par le nouveau fichier
+    } else {
+      this.toastr.warning("Le fichier fourni n'est pas valide ! Veuillez sélectionner une image JPEG ou PNG.");
+    }
+  }
+
   onSubmit() {
     this.submitted = true;
 
-    if (this.signupForm.valid) {
-      // Récupérer toutes les données du formulaire
-      const userRegister = this.signupForm.value;
-
-      if (this.signupForm.get('profile_picture').value == null){
-        delete userRegister['profile_picture'];
+    if (this.signupForm.valid ) {
+      const formData = new FormData();
+      formData.append('firstname', this.signupForm.get('firstname').value.trim().toLowerCase());
+      formData.append('lastname', this.signupForm.get('lastname').value.trim().toLowerCase());
+      formData.append('email', this.signupForm.get('email').value.trim().toLowerCase());
+      formData.append('about', this.signupForm.get('about').value.trim().toLowerCase());
+      formData.append('country', this.signupForm.get('country').value.trim().toLowerCase());
+      if (this.profile_picture.length > 0) {
+        formData.append('profile', this.profile_picture[0]);
       }
 
-      this.crudService.patchData(environment.api_url+'user/update/',userRegister).subscribe(m=>{
-        this.toastrService.success("Modification effectuer avec succè. Vous serez déconnecter pour une nouvelle connexion.")
-
-        setTimeout(()=>{
-          this.route.navigate(['auth/login'])
-        }, 2000)
-      }, error1 => {
-        this.toastrService.error("Une erreur est survenue. Veuillez contacter le support")
-        return;
+      formData.forEach((value, key) => {
+        console.log(key, value)
       })
 
+      this.crudService.updateDataOneWithHeader(
+          environment.api_url + 'users/'+this.currentUser.data.user_id+'/',
+          formData,
+          this.userConnectedHeader)
+          .pipe(take(1))
+          .subscribe(data => {
+            this.toastr.success("Produit ajouté avec succès !");
+            setTimeout(()=>{
+              location.reload();
+            }, 1500)
+          }, error => {
+            this.toastr.error("Une erreur est survenue lors de la mise a jour des elements!");
+            console.log(error)
+          });
+
     } else {
-      console.log("Formulaire invalid")
-      // Parcourir et afficher les erreurs du formulaire
+      console.log("Erreur lors de la soumission");
       Object.keys(this.signupForm.controls).forEach(key => {
         const controlErrors: ValidationErrors = this.signupForm.get(key)?.errors;
+        this.signupForm.controls[key].markAsTouched();
         if (controlErrors != null) {
           Object.keys(controlErrors).forEach(keyError => {
             const errorMessage = this.reusableFuction.getErrorMessage(key, controlErrors);

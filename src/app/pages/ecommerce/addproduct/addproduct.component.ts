@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import {UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators} from '@angular/forms';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import {DropzoneConfigInterface} from "ngx-dropzone-wrapper";
 import {TokenStorageService} from "../../../core/services/token-storage.service";
@@ -10,7 +10,7 @@ import {environment} from "../../../../environments/environment.prod";
 import {Subscription, take} from "rxjs";
 import {any} from "@amcharts/amcharts5/.internal/core/util/Array";
 import {ToastrService} from "ngx-toastr";
-import {ProductsCategoriesModels} from "../../../core/models/products.models";
+import {Product} from "../../../core/models/products.models";
 import {UserProductsDataService} from "../../../core/services/user-products-data.service";
 import {Editor, Toolbar} from "ngx-editor";
 
@@ -25,15 +25,19 @@ export class AddproductComponent implements OnInit, OnDestroy {
   productForm: UntypedFormGroup;
   breadCrumbItems: Array<{}>;
   submit: boolean = false;
-  mainImageFiles: File[] = [];
-  variantImageFiles: File[] = [];
+  front_cover: File[] = [];
+  back_cover: File[] = [];
   mainImagePreview: string | null = null; // Pour stocker l'aperçu de l'image principale
-  variantImagePreviews: string[] = []; // Pour stocker les aperçus des images variantes
+  variantImagePreviews: string | null = null; // Pour stocker les aperçus des images variantes
 
   // Categories for the ng-select
-  categories: {id: number, property1: string}[] = [];
-  product_states: string[] = ['Neuf', 'Reconditionné', 'Occasion'];
-  stock_states: string[] = ['En stock', 'Sous commande', 'En réapprovisionnement'];
+  currentUserCategories: {id: number, property1: string}[] = [];
+  currentUserGenre: {id: number, property1: string}[] = [
+    { id: 1, property1: "Action" },
+    { id: 2, property1: "Aventure" },
+    { id: 3, property1: "Comédie" },
+    { id: 4, property1: "Drame" }
+  ];
 
   // Dropzone configurations
   mainImageDropzoneConfig: DropzoneConfigInterface = {
@@ -45,11 +49,9 @@ export class AddproductComponent implements OnInit, OnDestroy {
     maxFiles: 1,
     init: function() {
       this.on("addedfile", function(file) {
-        console.log("Image principale ajoutée :", file);
       });
 
       this.on("complete", function(file) {
-        console.log("Upload terminé pour l'image variante :", file);
       });
     }
   };
@@ -57,16 +59,14 @@ export class AddproductComponent implements OnInit, OnDestroy {
   variantImagesDropzoneConfig: DropzoneConfigInterface = {
     clickable: true,
     addRemoveLinks: true,
-    uploadMultiple: true,
+    uploadMultiple: false,
     previewsContainer: false,
     autoProcessQueue: false, // Ne traite pas les fichiers automatiquement
     init: function() {
       this.on("addedfile", function(file) {
-        console.log("Image variante ajoutée :", file);
       });
 
       this.on("complete", function(file) {
-        console.log("Upload terminé pour l'image variante :", file);
       });
     }
   };
@@ -97,6 +97,11 @@ export class AddproductComponent implements OnInit, OnDestroy {
   //Observable Group
   subscriptions: Subscription[] = []
 
+  //File pdf
+  downloadsFile: File | null = null;
+
+  userConnectedHeader!: HttpHeaders
+
   constructor(
       public formBuilder: UntypedFormBuilder,
       private http: HttpClient,
@@ -117,173 +122,157 @@ export class AddproductComponent implements OnInit, OnDestroy {
 
     // Initializing form controls
     this.productForm = this.formBuilder.group({
-      name: ['teste', [Validators.required]],
-      manufacture_name: ['teste', [Validators.required, Validators.pattern('[a-zA-Z0-9]+')]],
-      manufacture_brand: ['teste', [Validators.required, Validators.pattern('[a-zA-Z0-9]+')]],
-      price: ['2000', [Validators.required, Validators.min(0)]],
-      promotional_price: ['0', [Validators.required, Validators.min(0)]],
-      category: [null, [Validators.required]],
-      features: ['', [Validators.required]],
-      quantity: ['1', [Validators.required, Validators.min(1)]],  // Optional
-      weight: ['', []],    // Optional
-      size: ['', []],      // Optional
-      dimensions: ['', []],// Optional
-      productOptions: [[]],  // Champ non obligatoire
-      product_state: [null, []],  // Optional ng-select
-      stock_state: [null, []]     // Optional ng-select
+      name: ['Livres name', [Validators.required]],
+      regular_price: [1200, Validators.min(0)],
+      sale_price: [1000, Validators.min(0)],
+      isbn: ['isbn_2010'],
+      page_num: [34, Validators.min(1)],
+      published_year: [2021, Validators.min(4)],
+      author_name: ['Livresque'],
+      summary: ['summary'],
+      genre: [null],
+      age: [16, Validators.min(16)],
+      categories: [[]],
+      downloads: [null]
     });
 
-    this.formDataCategorie = this.formBuilder.group({
-      user: [null],
-      name: ['', [Validators.required]] // champ pour le nom de la catégorie, obligatoire
-    });
+    this.getCategorie()
 
-     this.currentUserId = this.tokenStorage.getUser().id
-    //Recuperer les categories de l'utilsateur courant
-    this.getCurrentUserCategorie();
+     this.currentUserId = this.tokenStorage.getUser().data.user_id
 
      //Texte edditor
     this.editor = new Editor();
+
+    this.userConnectedHeader = new HttpHeaders({
+      'Authorization': `Token ${this.tokenStorage.getRefreshToken()}`
+    })
   }
 
-  async validSubmit() {
+  //Recuperer la categorie
+  getCategorie(){
+    // Récupérer les catégories de l'utilisateur lors de l'initialisation
+    this.userProductsDataService.fetchCurrentUserCategories();
+
+    // S'abonner aux catégories pour afficher les données dans le composant
+    this.userProductsDataService.getCategoryList().subscribe(categories => {
+      this.currentUserCategories = categories;
+    });
+  }
+
+  onFilePdfChange(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.downloadsFile = file; // Stocke le fichier sélectionné
+    }
+  }
+
+
+  async validSubmit()  {
     this.submit = true;
 
-    // Vérifie si le formulaire est valide avant de procéder
     if (this.productForm.invalid) {
-      console.log('Form is invalid');
-      this.toastr.error("Formulaire invalide. Certains champs sont requis !")
-      this.productForm.markAllAsTouched(); // Optionnel
+      this.toastr.error("Formulaire invalide. Certains champs sont requis !");
+      this.productForm.markAllAsTouched();
+      Object.keys(this.productForm.controls).forEach(key => {
+        const controlErrors: ValidationErrors = this.productForm.get(key)?.errors;
+        this.productForm.controls[key].markAsTouched();
+        if (controlErrors != null) {
+          Object.keys(controlErrors).forEach(keyError => {
+            const errorMessage = this.reusFunction.getErrorMessage(key, controlErrors);
+            this.toastr.error(errorMessage, 'Erreur:');
+          });
+        }
+      });
       return;
     }
 
-    // Crée un objet JavaScript pour stocker les données
-    const productData: any = {};
+    const formData = new FormData();
 
-    // Fonction pour normaliser les valeurs (minuscules et trim)
-    const normalize = (value: any) => {
-      return typeof value === 'string' ? value.trim().toLowerCase() : value;
-    };
+    // Ajout des données du formulaire
+    formData.append('user', this.tokenStorage.getUser()?.data.user_id.toString());
+    formData.append('name', this.productForm.get('name').value.trim().toLowerCase());
+    formData.append('regular_price', this.productForm.get('regular_price').value);
+    formData.append('sale_price', this.productForm.get('sale_price').value);
+    formData.append('summary', this.productForm.get('summary').value);
+    formData.append('isbn', this.productForm.get('isbn').value.trim().toLowerCase());
+    formData.append('page_num', this.productForm.get('page_num').value);
+    formData.append('published_year', this.productForm.get('published_year').value);
+    formData.append('author_name', this.productForm.get('author_name').value.trim().toLowerCase());
+    formData.append('genre', this.productForm.get('genre').value);
+    formData.append('age', this.productForm.get('age').value);
 
-    // Champs obligatoires
-    productData.user = this.tokenStorage.getUser().id;
-    productData.name = normalize(this.productForm.get('name').value);
-    productData.manufacture_name = normalize(this.productForm.get('manufacture_name').value);
-    productData.manufacture_brand = normalize(this.productForm.get('manufacture_brand').value);
-    productData.price = normalize(this.productForm.get('price').value);
-    productData.promotional_price = normalize(this.productForm.get('promotional_price').value);
-    productData.category = normalize(this.productForm.get('category').value);
-    productData.features = normalize(this.productForm.get('features').value);
-    productData.features = normalize(this.productForm.get('features').value);
+    // formData.append('categories', [this.productForm.get('categories').value)];
 
+    // Envoie les catégories comme tableau d'entiers
+    // Ajout de chaque ID de catégorie comme un champ distinct
 
-    //Recuperer le champs options
-    const optionField: { display: string, value: string }[] = this.productForm.get('productOptions').value;
-    // Extraire uniquement les 'value' et les séparer par '#'
-    const valuesString = optionField.map(option => option.value).join('#');
-    productData.productOptions = normalize(valuesString);
-
-
-    // Champs facultatifs - ajout uniquement si la valeur est fournie
-    const optionalFields = ['quantity', 'weight', 'size', 'dimensions', 'product_state', 'stock_state'];
-    optionalFields.forEach(field => {
-      const controlValue = this.productForm.get(field).value;
-      if (controlValue) {
-        productData[field] = normalize(controlValue);
-      }
+    const categories = this.productForm.get('categories').value; // array of integers
+    categories.forEach((category) => {
+      formData.append('categories[]', category.toString()); // Appending each integer directly
     });
 
-    // Gérer l'image principale en base64 si elle existe
-    if (this.mainImagePreview) {
-      productData.main_image = this.mainImagePreview;  // Ajouter l'image principale (base64)
+    // Ajout du fichier `downloads`
+    if (this.downloadsFile) {
+      formData.append('downloads', this.downloadsFile);
     }
 
-    // Debug: Vérifiez le contenu de variantImagePreviews avant de l'ajouter
-    console.log('variantImagePreviews avant ajout:', this.variantImagePreviews);
-
-    // Gérer les images variantes en base64 sous forme de tableau
-    if (this.variantImagePreviews.length > 0) {
-      // Transformer chaque image en un objet avec la clé `variant_image`
-      productData.variant_images = this.variantImagePreviews.map(image => ({ variant_image: image }));
-    } else {
-      console.log('Aucune image variante trouvée. variants_image sera vide.');
+    // Ajout des fichiers pour les couvertures
+    if (this.front_cover.length > 0) {
+      formData.append('front_cover', this.front_cover[0]);
     }
 
-    // Afficher les données sous forme de JSON dans la console
-    console.log('Données à envoyer sous forme de JSON :', JSON.stringify(productData, null, 2));
+    if (this.back_cover.length > 0) {
+      formData.append('back_cover', this.back_cover[0]);
+    }
 
-    // Appelle de l'api et soumission des donnees
-    this.crudService.addData(environment.api_url+'products/create/', productData)
+
+    // Appel de l'API
+    this.crudService.addDataWithHeader(environment.api_url + 'products/', formData, this.userConnectedHeader)
         .pipe(take(1))
-        .subscribe(m=>{
-          this.toastr.success("Produit ajouter avec success !")
-          console.log(m)
+        .subscribe(data => {
+          this.toastr.success("Produit ajouté avec succès !");
+          console.log(data);
         }, error => {
-          console.log(error)
-        })
-
+          console.log(error);
+        });
   }
 
-  // Handle upload success for main image
+
+  // Gérer le succès de l'upload pour l'image principale
   onMainImageUploadSuccess(event: any) {
-    const file = event && event.file ? event.file : event;  // Vérification du fichier
+    const file = event && event.file ? event.file : event; // Vérification du fichier
 
-    if (file instanceof Blob) {  // Vérifie que le fichier est bien du type Blob (File est un type de Blob)
-      // Remplacer tout fichier existant
-      this.mainImageFiles = [];
+    if (file instanceof Blob) {  // Vérifie que le fichier est bien du type Blob
+      this.front_cover = [<File>file]; // Remplace le fichier principal existant
 
-      // Ajouter le fichier à mainImageFiles
-      this.mainImageFiles.push(<File>file);
-
-      console.log("Fichier ajouté à mainImageFiles:", this.mainImageFiles);
-
-      // Si vous avez besoin d'obtenir le dataURL pour un usage ultérieur
-      const reader = new FileReader();
-
-      reader.onload = (e: any) => {
-        const dataURL = e.target.result;  // Récupère le dataURL du fichier
-        this.mainImagePreview = dataURL;
-      };
-
-      reader.readAsDataURL(file);  // Lire le fichier en tant que dataURL
+      // Créer une URL temporaire pour le fichier, à utiliser pour afficher un aperçu dans le HTML
+      this.mainImagePreview = URL.createObjectURL(file);
     } else {
       console.error("Le fichier fourni n'est pas valide : ", file);
     }
   }
 
-  // Handle upload success for variant images
+
+  // Gérer le succès de l'upload. C'est plus un variant juste une seule image
   onVariantImageUploadSuccess(event: any) {
-    // Vérification du fichier
-    const file = event && event.file ? event.file : event;
+    const file = event && event.file ? event.file : event; // Vérification du fichier
 
-    if (file instanceof Blob) {  // Vérifie que le fichier est bien du type Blob (File est un type de Blob)
-      // Ajouter le fichier à variantImageFiles (permettant plusieurs images)
-      this.variantImageFiles.push(<File>file);
+    if (file instanceof Blob) {  // Vérifie que le fichier est bien du type Blob
+      this.back_cover = [<File>file]; // Remplace le fichier principal existant
 
-      console.log("Fichier ajouté à variantImageFiles:", this.variantImageFiles);
 
-      // Si vous avez besoin d'obtenir le dataURL pour un usage ultérieur
-      const reader = new FileReader();
-
-      reader.onload = (e: any) => {
-        const dataURL = e.target.result;  // Récupère le dataURL du fichier
-        console.log("dataURL de l'image variante:", dataURL);
-
-        // Stocker le dataURL dans variantImagePreviews pour prévisualisation
-        this.variantImagePreviews.push(dataURL);
-      };
-
-      reader.readAsDataURL(file);  // Lire le fichier en tant que dataURL
+      // Créer une URL temporaire pour le fichier, à utiliser pour afficher un aperçu dans le HTML
+      this.variantImagePreviews = URL.createObjectURL(file);
     } else {
-      console.error("Le fichier fourni n'est pas valide : ", file);
+      this.toastr.warning("Le fichier fourni n'est pas valide !");
     }
   }
 
 
   // File remove for variant images
   removeVariantImage(index: number) {
-    this.variantImageFiles.splice(index, 1);
-    this.variantImagePreviews.splice(index, 1); // Supprimer l'aperçu correspondant
+    this.back_cover.splice(index, 1);
+    // this.variantImagePreviews.splice(index, 1); // Supprimer l'aperçu correspondant
   }
 
   openModal(content: any) {
@@ -291,70 +280,8 @@ export class AddproductComponent implements OnInit, OnDestroy {
     this.modalRef = this.modalService.show(content);
   }
 
-  //Recuperer la categorie
-  getCurrentUserCategorie(){
-    // Récupérer les catégories de l'utilisateur lors de l'initialisation
-    this.userProductsDataService.fetchCurrentUserCategories();
 
-    // S'abonner aux catégories pour afficher les données dans le composant
-    this.userProductsDataService.getCategoryList().subscribe(categories => {
-      this.categories = categories;
-    });
-  }
 
-  // Sauvegarder la catégorie
-  saveCategories() {
-    this.submitted = true;
-
-    // Arrêter si le formulaire n'est pas valide
-    if (this.formDataCategorie.invalid ) {
-      return;
-    }
-    if (this.categorieExist ) {
-      this.toastr.warning("Cette catégorie existe déja! Veuillez creer une nouvelle !")
-      return;
-    }
-
-    this.formDataCategorie.patchValue({
-      user: this.currentUserId,
-      name: this.reusFunction.NormaliseToLowerCase(this.formDataCategorie.get('name').value).trim()
-    })
-
-    const categoryData = this.formDataCategorie.value;
-
-    console.log('Données de la catégorie sauvegardée : ', categoryData);
-
-    this.crudService.addData(environment.api_url+'category/create/', this.formDataCategorie.value)
-        .pipe(take(1))
-        .subscribe((data: any)=>{
-          this.toastr.success(`La catégorie ${this.formDataCategorie.get('name').value} est a été creer avec succè !`)
-          //Recuperer et rafraichir les categories de l'utilsateur courant
-          this.getCurrentUserCategorie();
-        }, error => {
-          this.toastr.error("Une erreur est survenu lors de la creation de la catégorie veuillez contacter le support. Merci !")
-        })
-
-    // Fermer la modal après sauvegarde
-    this.modalRef?.hide();
-  }
-
-  // Vérifier si la catégorie existe déjà
-  verifyIfCategoryExists(event: Event) {
-    const input = (event.target as HTMLInputElement).value.toLowerCase().trim();
-    console.log('Vérification si la catégorie existe : ', input);
-
-    // Utiliser `.some` pour vérifier si un nom de catégorie correspond à l'input
-    const categoryExists = this.categories.some(category =>
-        category.property1.toLowerCase() === input
-    );
-
-    if (categoryExists) {
-      this.toastr.warning("Cette catégorie existe déjà !");
-      this.categorieExist = true;
-    } else {
-      this.categorieExist = false;
-    }
-  }
 
 
   validatePositiveNumber(event: KeyboardEvent) {

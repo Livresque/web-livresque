@@ -36,7 +36,7 @@ export class LockscreenComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    if (this.localTokenStorage.getUser() && this.localTokenStorage.getUser().email !=''){
+    if (this.localTokenStorage.getUser() && this.localTokenStorage.getUser().data.email !=''){
       this.userStorage = this.localTokenStorage.getUser();
     }else {
       this.toastService.error('Impossible de recuperer vos identifiants de connexion. Reconnecter vous', "Erreur de chargement");
@@ -49,7 +49,7 @@ export class LockscreenComponent implements OnInit {
   unloock(){
     // console.log(this.userStorage.)
     if (this.currentPassword.length > 0){
-      this.store.dispatch(login({ email: this.userStorage.email, password: this.currentPassword.trim() }));
+      this.store.dispatch(login({ email: this.userStorage.data.email, password: this.currentPassword.trim() }));
 
     }else {
       this.toastService.error("Saissez votre mot de passe");

@@ -4,16 +4,13 @@ import { UntypedFormBuilder, Validators, UntypedFormGroup } from '@angular/forms
 import { earningLineChart, salesAnalyticsDonutChart } from './data';
 import { ChartType, ChatMessage } from './saas.model';
 import { ConfigService } from '../../../core/services/config.service';
-import { fetchchatdata } from 'src/app/store/Chat/chat.action';
-import { selectData } from 'src/app/store/Chat/chat-selector';
+
 import { Store } from '@ngrx/store';
 import {OrdersModel} from "../../../store/orders/order.model";
 import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
 import {ReusableFunctionService} from "../../../core/services/reusable-function.service";
 import {fetchEcoorderDataData} from "../../../store/orders/order.actions";
-import {fetchDeliveryData} from "../../../store/delivery/delivery.action";
-import {selectDataDelivery} from "../../../store/delivery/delivery-selector";
-import {DeliveryModel} from "../../../store/delivery/delivery.model";
+
 import {environment} from "../../../../environments/environment.prod";
 import {selectOrderDetailData} from "../../../store/orders/order-selector";
 import {CrudService} from "../../../core/services/crud.service";
@@ -22,6 +19,7 @@ import { User } from 'src/app/store/Authentication/auth.models';
 import {ConnectionTimerService} from "../../../core/services/connection-timer.service";
 import {take} from "rxjs";
 import {ToastrService} from "ngx-toastr";
+import {SellerStatistiqueInterface} from "../../../core/models/seller-statistique.interface";
 
 @Component({
   selector: 'app-saas',
@@ -56,7 +54,6 @@ export class SaasComponent implements OnInit, AfterViewInit {
 
   orderlist: OrdersModel[]
   Allorderlist: any
-  listDeliveryData: DeliveryModel[];
   detailsOrder: OrdersModel
 
   //
@@ -64,13 +61,15 @@ export class SaasComponent implements OnInit, AfterViewInit {
   //Currennt user
   currentUser!: User
 
+  currentUserSellerStatistique!: SellerStatistiqueInterface
+
   constructor(
       public formBuilder: UntypedFormBuilder,
       private configService: ConfigService,
       public store: Store,
       public reusableFuction: ReusableFunctionService,
       public connectionTimerService: ConnectionTimerService,
-      private CrudService: CrudService,
+      private crudService: CrudService,
       private tokenStorageService: TokenStorageService,
       private modalService: BsModalService,
       public toastrService: ToastrService,
@@ -93,10 +92,6 @@ export class SaasComponent implements OnInit, AfterViewInit {
       }
     });
 
-    this.store.dispatch(fetchchatdata());
-    this.store.select(selectData).subscribe(data => {
-      this.ChatData = data;
-    })
     this._fetchData();
 
     this.formData = this.formBuilder.group({
@@ -114,9 +109,16 @@ export class SaasComponent implements OnInit, AfterViewInit {
       this.statData = data.statData;
     });
 
-    if (this.tokenStorageService.getUser() && this.tokenStorageService.getUser().email.length > 2){
+    if (this.tokenStorageService.getUser() && this.tokenStorageService.getUser().data.email.length > 2){
       this.currentUser = this.tokenStorageService.getUser()
+      console.log(this.currentUser)
     }
+
+    this.crudService.fetchDataOne(environment.api_url+'orders/seller/'+this.currentUser.data.user_id+'/')
+        .subscribe((data: SellerStatistiqueInterface)=>{
+          this.currentUserSellerStatistique = data
+          console.log(data)
+        })
 
   }
 
@@ -392,32 +394,32 @@ export class SaasComponent implements OnInit, AfterViewInit {
   }
 
   //Refresh
-  refreshOderData(){
-    this.store.dispatch(fetchEcoorderDataData());
-    this.store.select(selectData).subscribe((data: OrdersModel[]) => {
-      console.log(data)
-      this.orderlist = data;
-      this.Allorderlist = data;
-    });
-
-    //Chargement de la liste des livreurs dans le select
-    this.store.dispatch(fetchDeliveryData())
-    this.store.select(selectDataDelivery).subscribe(data => {
-      if (data) {
-        //Je recupere dans un premier temps le tableau de tout les livreurs
-        //Puis j'extraire la liste des surnames de chaque livreur dans le
-        //this.selectValue
-        this.listDeliveryData = data;
-      }
-    });
-
-  }
+  // refreshOderData(){
+  //   this.store.dispatch(fetchEcoorderDataData());
+  //   this.store.select(selectData).subscribe((data: OrdersModel[]) => {
+  //     console.log(data)
+  //     this.orderlist = data;
+  //     this.Allorderlist = data;
+  //   });
+  //
+  //   //Chargement de la liste des livreurs dans le select
+  //   this.store.dispatch(fetchDeliveryData())
+  //   this.store.select(selectDataDelivery).subscribe(data => {
+  //     if (data) {
+  //       //Je recupere dans un premier temps le tableau de tout les livreurs
+  //       //Puis j'extraire la liste des surnames de chaque livreur dans le
+  //       //this.selectValue
+  //       this.listDeliveryData = data;
+  //     }
+  //   });
+  //
+  // }
 
   //
   showDetailsOrder(orderIdDetail: string) {
     // Réinitialiser `deliveryselectValue` avant d'ajouter les nouveaux livreurs
     // console.log(orderIdDetail)
-    this.CrudService.fetchData(environment.api_url+`order-retrieve/${orderIdDetail}`)
+    this.crudService.fetchData(environment.api_url+`order-retrieve/${orderIdDetail}`)
         .subscribe((data: any)=>{
           if (data) {
             this.detailsOrder = data;

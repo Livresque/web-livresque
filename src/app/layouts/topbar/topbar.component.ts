@@ -78,7 +78,7 @@ export class TopbarComponent implements OnInit {
       this.flagvalue = val.map(element => element.flag);
     }
 
-    if (this.tokenStorageService.getUser() && this.tokenStorageService.getUser().email.length > 2){
+    if (this.tokenStorageService.getUser() && this.tokenStorageService.getUser()?.data?.email.length > 2){
       this.currentUsername = this.tokenStorageService.getUser()
     }
 

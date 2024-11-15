@@ -38,8 +38,8 @@ export class LoginComponent implements OnInit {
     }
     // form validation
     this.loginForm = this.formBuilder.group({
-      email: ['admin@themesbrand.com', [Validators.required, Validators.email]],
-      password: ['123456', [Validators.required]],
+      email: ['user14@example.com', [Validators.required, Validators.email]],
+      password: ['user14@example.com', [Validators.required]],
     });
   }
 

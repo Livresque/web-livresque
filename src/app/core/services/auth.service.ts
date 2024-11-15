@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { getFirebaseBackend } from '../../authUtils';
-import {User, UserRegister} from 'src/app/store/Authentication/auth.models';
+import {User, UserData} from 'src/app/store/Authentication/auth.models';
 import { from, map } from 'rxjs';
 import {CrudService} from "./crud.service";
 import {environment} from "../../../environments/environment.prod";
@@ -50,8 +50,8 @@ export class AuthenticationService {
      * Performs the register
      * @param user email
      */
-    register(user: Partial<UserRegister>) {
-        return  this.crudService.addDataWithHeader(environment.api_url+'users/create', user, headersAuth);
+    register(user: Partial<UserData>) {
+        return  this.crudService.addDataWithHeader(environment.api_url+'users/create/', user, headersAuth);
     }
 
     /**

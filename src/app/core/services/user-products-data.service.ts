@@ -6,11 +6,13 @@ import {environment} from "../../../environments/environment.prod";
 import {Product, ProductsCategoriesModels} from "../models/products.models";
 import {map} from "rxjs/operators";
 import {ReusableFunctionService} from "./reusable-function.service";
+import {HttpHeaders} from "@angular/common/http";
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserProductsDataService {
+
 
 
   private userCategoriesSubject = new BehaviorSubject<ProductsCategoriesModels[]>([]);
@@ -25,11 +27,19 @@ export class UserProductsDataService {
     private loadStep = 6;      // Nombre d'éléments à charger à chaque clic de "Load More"
     private currentIndex = 0;  // Index actuel de la pagination
 
+
+    refreshTokenUserConnected!: string
   constructor(
       private crudService: CrudService,
       private tokenStorage: TokenStorageService,
       public reusableFunction: ReusableFunctionService
-  ) { }
+  ) {
+      this.refreshTokenUserConnected = this.tokenStorage.getRefreshToken();
+
+  }
+    userHeader = new HttpHeaders({
+        'Authorization': `Token ${this.refreshTokenUserConnected}`
+    })
 
   // Récupérer les catégories de l'utilisateur connecté
   fetchCurrentUserCategories(): void {
@@ -44,19 +54,22 @@ export class UserProductsDataService {
   }
 
   // Obtenir les catégories sous forme de tableau d'objets { id, name }
-  getCategoryList(): Observable<{ id: number, property1: string }[]> {
-    return this.userCategories$.pipe(
-        map(categories => categories.map(c => ({
-          id: c.id,
-            property1: c.property1
-        })))
-    );
-  }
+    getCategoryList(): Observable<{ id: number, property1: string }[]> {
+        return this.userCategories$.pipe(
+            map(categories => Array.isArray(categories)
+                ? categories.map(c => ({
+                    id: c.id,
+                    property1: c.property1
+                }))
+                : [] // Retourne un tableau vide si `categories` n'est pas un tableau
+            )
+        );
+    }
 
   //
     // Récupère les produits liés à l'utilisateur
     getCurrentUserProduct() {
-        this.crudService.fetchData(`${environment.api_url}products/user/${this.tokenStorage.getUser().username}`)
+        this.crudService.fetchData(`${environment.api_url}products/?customer_id=${this.tokenStorage.getUser().data.user_id}`)
             .subscribe((data: Product[]) => {
                 this.allProducts = data;
                 this.currentIndex = 0;  // Réinitialiser l'index
@@ -66,7 +79,7 @@ export class UserProductsDataService {
 
     // Charger les 10 premiers produits
     loadInitialProducts() {
-        const initialProducts = this.allProducts.slice(0, this.initialLoad);
+        const initialProducts = this.allProducts?.slice(0, this.initialLoad);
         this.displayedProducts.next(initialProducts);
         this.currentIndex = this.initialLoad;
     }

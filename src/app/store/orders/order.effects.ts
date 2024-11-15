@@ -20,30 +20,43 @@ import {
 import {of, take} from 'rxjs';
 import { CrudService } from 'src/app/core/services/crud.service';
 import {environment} from "../../../environments/environment.prod";
+import {OrdersModel} from "./order.model";
+import {TokenStorageService} from "../../core/services/token-storage.service";
+import {HttpHeaders} from "@angular/common/http";
 
 
 @Injectable()
 export class OrderEffects {
-
+    currentUserId!: number
+    userConnectedHeader!: HttpHeaders
     constructor(
         private actions$: Actions,
-        private CrudService: CrudService
-    ) { }
- 
+        private CrudService: CrudService,
+        private tokenStorage: TokenStorageService,
+
+    ) {
+        this.currentUserId = this.tokenStorage.getUser().data.user_id
+        this.userConnectedHeader = new HttpHeaders({
+            'Authorization': `Token ${this.tokenStorage.getRefreshToken()}`
+        })
+    }
+
 
     fetchData$ = createEffect(() =>
         this.actions$.pipe(
             ofType(fetchEcoorderDataData),
             switchMap(() =>
-                this.CrudService.fetchData(environment.api_url+'order-list/').pipe(
-                    map((orderDatas) => fetchEcoorderDataSuccess({orderDatas })),
-                    catchError((error) =>
-                        of(fetchEcoorderDataFail({ error }))
-                    )
+                this.CrudService.fetchDataWithLocalStorageTokenHeader(
+                    environment.api_url + 'orders/'+this.currentUserId+'/', this.userConnectedHeader)
+                    .pipe(
+                    take(1),
+                    map((orderDatas: OrdersModel[]) => fetchEcoorderDataSuccess({ orderDatas })),
+                    catchError(error => of(fetchEcoorderDataFail({ error })))
                 )
-            ),
-        ),
+            )
+        )
     );
+
     retrieveData$ = createEffect(() =>
        this.actions$.pipe(
            ofType(fetchEcoDetailIdData),

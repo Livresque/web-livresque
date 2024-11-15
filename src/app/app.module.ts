@@ -34,24 +34,13 @@ import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromD
 import { ErrorInterceptor } from './core/helpers/error.interceptor';
 import { JwtInterceptor } from './core/helpers/jwt.interceptor';
 import { FakeBackendInterceptor } from './core/helpers/fake-backend';
-import { FilemanagerEffects } from './store/filemanager/filemanager.effects';
 import { rootReducer } from './store';
 import { OrderEffects } from './store/orders/order.effects';
 import { AuthenticationEffects } from './store/Authentication/authentication.effects';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { CartEffects } from './store/Cart/cart.effects';
-import { ProjectEffects } from './store/ProjectsData/project.effects';
-import { usersEffects } from './store/UserGrid/user.effects';
-import { userslistEffects } from './store/UserList/userlist.effect';
-import { JoblistEffects } from './store/Job/job.effects';
-import { CandidateEffects } from './store/Candidate/candidate.effects';
-import { InvoiceDataEffects } from './store/Invoices/invoice.effects';
-import { ChatEffects } from './store/Chat/chat.effect';
-import { tasklistEffects } from './store/Tasks/tasks.effect';
-import { OrdersEffects } from './store/Crypto/crypto.effects';
-import { DeliveryEffects } from './store/delivery/delivery.effects';
-import { MailEffects } from './store/Email/email.effects';
+
 import {authInterceptorProviders} from "./core/helpers/auth.interceptor";
 
 if (environment.defaultauth === 'firebase') {
@@ -97,21 +86,10 @@ export function createTranslateLoader(http: HttpClient): any {
             logOnly: environment.production, // Restrict extension to log-only mode
         }),
         EffectsModule.forRoot([
-            FilemanagerEffects,
             OrderEffects,
             AuthenticationEffects,
             CartEffects,
-            ProjectEffects,
-            usersEffects,
-            userslistEffects,
-            JoblistEffects,
-            CandidateEffects,
-            InvoiceDataEffects,
-            ChatEffects,
-            tasklistEffects,
-            OrdersEffects,
-            DeliveryEffects,
-            MailEffects
+
         ])],
     providers: [
         authInterceptorProviders,

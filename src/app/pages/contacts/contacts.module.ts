@@ -14,12 +14,10 @@ import { ContactsRoutingModule } from './contacts-routing.module';
 
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
-import { UsergridComponent } from './usergrid/usergrid.component';
-import { UserlistComponent } from './userlist/userlist.component';
 import { ProfileComponent } from './profile/profile.component';
 
 @NgModule({
-  declarations: [UsergridComponent, UserlistComponent, ProfileComponent],
+  declarations: [ProfileComponent],
   imports: [
     CommonModule,
     ContactsRoutingModule,

@@ -11,10 +11,20 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const authUrls = [
-        environment.api_url + 'user-detail/',
+      environment.api_url + 'users/create/',
+      environment.api_url + 'users/login/',
+      environment.api_url + 'orders/',
+      environment.api_url + 'users/',
+      // environment.api_url + 'products/',
+    ];
+
+    const userUrls = [
+      environment.api_url + 'user-detail/',
       environment.api_url + 'user/update/',
       environment.api_url + 'users/create/',
       environment.api_url + 'users/login/',
+      environment.api_url + 'orders/',
+      environment.api_url + 'products/',
     ];
     const refreshToken = this.tokenStorage.getRefreshToken();
     let authReq = req;
@@ -22,6 +32,7 @@ export class AuthInterceptor implements HttpInterceptor {
     // Log pour vérifier les URLs
     console.log('Liste des URLs nécessitant un token:', authUrls);
     console.log('URL de la requête interceptée :', req.url);
+    console.log(refreshToken);
 
     if (refreshToken) {
       console.log('Refresh Token récupéré :', refreshToken);
@@ -32,6 +43,7 @@ export class AuthInterceptor implements HttpInterceptor {
         authReq = req.clone({
           setHeaders: {
             // 'Authorization': `toe ${refreshToken}` // Ajoute le token dans l'en-tête
+            // 'Authorization': `Token f47ac10b-58cc-4372-a567-0e02b2c3d479` // Ajoute le token dans l'en-tête
             'Authorization': `Token f47ac10b-58cc-4372-a567-0e02b2c3d479` // Ajoute le token dans l'en-tête
           },
         });
